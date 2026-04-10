@@ -1,0 +1,24 @@
+{
+  "name": "Projeto Federal",
+  "short_name": "PF Estudos",
+  "description": "Sistema inteligente de estudos para carreiras policiais com ciclo adaptativo e análise por IA.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#001f3f",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://ui-avatars.com/api/?name=PF&background=001f3f&color=fff&size=192",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://ui-avatars.com/api/?name=PF&background=001f3f&color=fff&size=512",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
