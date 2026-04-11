@@ -14,13 +14,12 @@ export default async function handler(req: any, res: any) {
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      return res.status(500).json({ error: "API Key não encontrada no ambiente." });
+      return res.status(500).json({ error: "API Key não configurada na Vercel." });
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
 
-    // SOLUÇÃO DO ERRO 404: Usar o nome estável "gemini-1.5-pro-latest" ou "gemini-1.5-pro"
-    // e garantir que o modelo existe.
+    // AJUSTE AQUI: Nome exato do modelo
     const model = genAI.getGenerativeModel({
       model: "gemini-1.5-pro", 
       generationConfig: {
@@ -29,19 +28,19 @@ export default async function handler(req: any, res: any) {
     });
 
     const prompt = `
-      Você é um especialista em análise de editais para concursos policiais.
-      Transforme o texto abaixo em um JSON estruturado para estudo verticalizado.
+      Analise o edital abaixo e organize as disciplinas e tópicos de forma verticalizada.
+      Retorne APENAS o JSON conforme a estrutura solicitada.
 
-      TEXTO:
+      TEXTO DO EDITAL:
       ${text}
 
       ESTRUTURA:
       {
         "metadados": {
-          "cargo": "${metadata?.cargo || "Não informado"}",
-          "orgao": "${metadata?.orgao || "Não informado"}",
-          "banca": "${metadata?.banca || "Não informado"}",
-          "data_prova": "${metadata?.data_prova || "Pré-Edital"}"
+          "cargo": "${metadata?.cargo || ""}",
+          "orgao": "${metadata?.orgao || ""}",
+          "banca": "${metadata?.banca || ""}",
+          "data_prova": "${metadata?.data_prova || ""}"
         },
         "dashboard": [
           { "disciplina": "string", "total_topicos": 0 }
@@ -57,32 +56,17 @@ export default async function handler(req: any, res: any) {
       }
     `;
 
-    console.log("🚀 Enviando requisição para o Google Gemini...");
-    
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const textResponse = response.text();
 
-    if (!textResponse) {
-      throw new Error("A IA retornou uma resposta vazia.");
-    }
-
     return res.status(200).json(JSON.parse(textResponse));
 
   } catch (error: any) {
-    console.error("❌ ERRO DETALHADO:", error);
-
-    // Se o erro for 404 de novo, vamos dar uma pista melhor
-    if (error.message?.includes("404")) {
-      return res.status(500).json({
-        error: "Modelo não encontrado ou API fora de serviço nesta região.",
-        details: "Verifique se a versão do @google/generative-ai está atualizada.",
-      });
-    }
-
+    console.error("ERRO NO SERVIDOR:", error);
     return res.status(500).json({
-      error: "Falha ao processar edital",
-      details: error.message,
+      error: "Erro ao processar o edital",
+      details: error.message
     });
   }
 }
