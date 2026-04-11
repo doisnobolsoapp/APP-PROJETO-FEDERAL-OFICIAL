@@ -1,101 +1,84 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default async function handler(req: any, res: any) {
+  // 1. Validação de Método
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    const body =
-      typeof req.body === "string" ? JSON.parse(req.body) : req.body;
-
-    const { text, metadata } = body;
+    // 2. Extração de dados (Vercel já faz o parse do JSON automaticamente no req.body)
+    const { text, metadata } = req.body;
 
     if (!text) {
-      return res.status(400).json({ error: "Text is required" });
+      return res.status(400).json({ error: "O campo 'text' é obrigatório." });
     }
 
-    if (!process.env.GEMINI_API_KEY) {
-      console.error("❌ API KEY NÃO ENCONTRADA");
-      return res.status(500).json({ error: "API Key não configurada" });
+    // 3. Verificação da Chave de API
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      console.error("❌ ERRO: GEMINI_API_KEY não configurada na Vercel.");
+      return res.status(500).json({ error: "API Key não configurada no servidor." });
     }
 
-    console.log("🔥 INICIANDO GEMINI...");
-    console.log("🔥 MODEL USADO: gemini-1.5-pro");
+    const genAI = new GoogleGenerativeAI(apiKey);
 
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-
+    // 4. Configuração do Modelo com Resposta JSON Forçada
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-pro", // ✅ MODELO CORRETO
+      model: "gemini-1.5-pro",
+      generationConfig: {
+        responseMimeType: "application/json", // Isso garante que a IA não mande textos extras ou markdown
+      },
     });
 
     const prompt = `
-Você é um sistema que retorna APENAS JSON válido.
-
-Transforme o texto abaixo em JSON estruturado.
+Transforme o texto de edital abaixo em um JSON estruturado para estudo verticalizado.
 
 TEXTO:
 ${text}
 
-FORMATO:
+ESTRUTURA DE DADOS REQUERIDA:
 {
   "metadados": {
-    "cargo": "${metadata?.cargo || ""}",
-    "orgao": "${metadata?.orgao || ""}",
-    "banca": "${metadata?.banca || ""}",
+    "cargo": "${metadata?.cargo || "Não informado"}",
+    "orgao": "${metadata?.orgao || "Não informado"}",
+    "banca": "${metadata?.banca || "Não informado"}",
     "data_prova": "${metadata?.data_prova || "Pré-Edital"}"
   },
   "dashboard": [
-    { "disciplina": "string", "total_topicos": number }
+    { "disciplina": "Nome da Matéria", "total_topicos": 0 }
   ],
   "verticalizado": [
     {
-      "disciplina": "string",
+      "disciplina": "Nome da Matéria",
       "topicos": [
-        { "id": "string", "descricao": "string" }
+        { "id": "1.1", "descricao": "Descrição do tópico do edital" }
       ]
     }
   ]
 }
 
 REGRAS:
-- Retorne apenas JSON puro
-- Não use markdown
-- Não use crases
+- Extraia todas as disciplinas e tópicos fielmente ao texto.
+- O campo 'id' deve seguir a numeração do edital se houver.
 `;
 
+    console.log("🔥 Chamando Gemini 1.5 Pro...");
     const result = await model.generateContent(prompt);
     const response = await result.response;
-
     const textResponse = response.text();
 
-    console.log("🔥 RESPOSTA BRUTA:", textResponse);
-
-    const cleaned = textResponse
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
-
-    let data;
-
-    try {
-      data = JSON.parse(cleaned);
-    } catch (e) {
-      console.error("❌ JSON INVÁLIDO:", cleaned);
-
-      return res.status(500).json({
-        error: "Resposta da IA não é JSON válido",
-        raw: cleaned,
-      });
-    }
+    // 5. Parse e Retorno
+    // Graças ao responseMimeType, o texto já vem como JSON puro
+    const data = JSON.parse(textResponse);
 
     return res.status(200).json(data);
 
   } catch (error: any) {
-    console.error("❌ ERRO GERAL:", error);
+    console.error("❌ ERRO NO SERVIDOR:", error);
 
     return res.status(500).json({
-      error: "Failed to parse edital",
+      error: "Falha ao processar o edital",
       details: error.message,
     });
   }
