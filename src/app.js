@@ -333,48 +333,52 @@ class StudyApp {
         }
     }
 
-    // --- Parser Logic (CORRIGIDO PARA VERCEL) ---
-    async handleParsing() {
-        const text = this.editalText.value.trim();
-        if (!text) {
-            this.showToast('Por favor, cole o conteúdo do edital.');
-            return;
-        }
-
-        const metadata = {
-            cargo: this.cargoName.value.trim(),
-            orgao: this.orgaoName.value.trim(),
-            banca: this.bancaName.value.trim(),
-            data_prova: this.provaDate.value.trim() || "Pré-Edital"
-        };
-
-        this.startParsingBtn.disabled = true;
-        this.startParsingBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
-
-        try {
-            // CORREÇÃO: Adicionada barra "/" no início para rota absoluta
-            const response = await fetch('/api/parse-edital', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ text, metadata })
-            });
-
-            if (!response.ok) throw new Error('Falha na resposta da API');
-
-            const result = await response.json();
-            this.parsedData = result;
-            
-            this.jsonOutput.textContent = JSON.stringify(result, null, 2);
-            this.parserResult.classList.remove('hidden');
-            this.showToast('Edital processado com sucesso!');
-        } catch (error) {
-            console.error('Erro no parsing:', error);
-            this.showToast('Erro ao processar o edital. Verifique se a API Key está configurada na Vercel.');
-        } finally {
-            this.startParsingBtn.disabled = false;
-            this.startParsingBtn.innerHTML = '<i class="fas fa-bolt"></i> Processar com IA';
-        }
+   // --- Parser Logic ---
+async handleParsing() {
+    const text = this.editalText.value.trim();
+    if (!text) {
+        this.showToast('Por favor, cole o conteúdo do edital.');
+        return;
     }
+
+    const metadata = {
+        cargo: this.cargoName.value.trim(),
+        orgao: this.orgaoName.value.trim(),
+        banca: this.bancaName.value.trim(),
+        data_prova: this.provaDate.value.trim() || "Pré-Edital"
+    };
+
+    this.startParsingBtn.disabled = true;
+    this.startParsingBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+
+    try {
+        // Mudança aqui: usamos a rota absoluta sem host para a Vercel entender
+        const response = await fetch('/api/parse-edital', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text, metadata })
+        });
+
+        if (response.status === 404) {
+            throw new Error('API não encontrada (404). Verifique se as funções na pasta /api foram enviadas.');
+        }
+
+        if (!response.ok) throw new Error('Falha na resposta da API');
+
+        const result = await response.json();
+        this.parsedData = result;
+        
+        this.jsonOutput.textContent = JSON.stringify(result, null, 2);
+        this.parserResult.classList.remove('hidden');
+        this.showToast('Edital processado com sucesso!');
+    } catch (error) {
+        console.error('Erro no parsing:', error);
+        this.showToast(error.message, 'error');
+    } finally {
+        this.startParsingBtn.disabled = false;
+        this.startParsingBtn.innerHTML = '<i class="fas fa-bolt"></i> Processar com IA';
+    }
+}
 
     importParsedData() {
         if (!this.parsedData) return;
