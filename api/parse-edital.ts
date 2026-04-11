@@ -1,84 +1,87 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default async function handler(req: any, res: any) {
-  // 1. Validação de Método
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    // 2. Extração de dados (Vercel já faz o parse do JSON automaticamente no req.body)
     const { text, metadata } = req.body;
 
     if (!text) {
       return res.status(400).json({ error: "O campo 'text' é obrigatório." });
     }
 
-    // 3. Verificação da Chave de API
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      console.error("❌ ERRO: GEMINI_API_KEY não configurada na Vercel.");
-      return res.status(500).json({ error: "API Key não configurada no servidor." });
+      return res.status(500).json({ error: "API Key não encontrada no ambiente." });
     }
 
     const genAI = new GoogleGenerativeAI(apiKey);
 
-    // 4. Configuração do Modelo com Resposta JSON Forçada
+    // SOLUÇÃO DO ERRO 404: Usar o nome estável "gemini-1.5-pro-latest" ou "gemini-1.5-pro"
+    // e garantir que o modelo existe.
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-pro",
+      model: "gemini-1.5-pro", 
       generationConfig: {
-        responseMimeType: "application/json", // Isso garante que a IA não mande textos extras ou markdown
+        responseMimeType: "application/json",
       },
     });
 
     const prompt = `
-Transforme o texto de edital abaixo em um JSON estruturado para estudo verticalizado.
+      Você é um especialista em análise de editais para concursos policiais.
+      Transforme o texto abaixo em um JSON estruturado para estudo verticalizado.
 
-TEXTO:
-${text}
+      TEXTO:
+      ${text}
 
-ESTRUTURA DE DADOS REQUERIDA:
-{
-  "metadados": {
-    "cargo": "${metadata?.cargo || "Não informado"}",
-    "orgao": "${metadata?.orgao || "Não informado"}",
-    "banca": "${metadata?.banca || "Não informado"}",
-    "data_prova": "${metadata?.data_prova || "Pré-Edital"}"
-  },
-  "dashboard": [
-    { "disciplina": "Nome da Matéria", "total_topicos": 0 }
-  ],
-  "verticalizado": [
-    {
-      "disciplina": "Nome da Matéria",
-      "topicos": [
-        { "id": "1.1", "descricao": "Descrição do tópico do edital" }
-      ]
-    }
-  ]
-}
+      ESTRUTURA:
+      {
+        "metadados": {
+          "cargo": "${metadata?.cargo || "Não informado"}",
+          "orgao": "${metadata?.orgao || "Não informado"}",
+          "banca": "${metadata?.banca || "Não informado"}",
+          "data_prova": "${metadata?.data_prova || "Pré-Edital"}"
+        },
+        "dashboard": [
+          { "disciplina": "string", "total_topicos": 0 }
+        ],
+        "verticalizado": [
+          {
+            "disciplina": "string",
+            "topicos": [
+              { "id": "string", "descricao": "string" }
+            ]
+          }
+        ]
+      }
+    `;
 
-REGRAS:
-- Extraia todas as disciplinas e tópicos fielmente ao texto.
-- O campo 'id' deve seguir a numeração do edital se houver.
-`;
-
-    console.log("🔥 Chamando Gemini 1.5 Pro...");
+    console.log("🚀 Enviando requisição para o Google Gemini...");
+    
     const result = await model.generateContent(prompt);
     const response = await result.response;
     const textResponse = response.text();
 
-    // 5. Parse e Retorno
-    // Graças ao responseMimeType, o texto já vem como JSON puro
-    const data = JSON.parse(textResponse);
+    if (!textResponse) {
+      throw new Error("A IA retornou uma resposta vazia.");
+    }
 
-    return res.status(200).json(data);
+    return res.status(200).json(JSON.parse(textResponse));
 
   } catch (error: any) {
-    console.error("❌ ERRO NO SERVIDOR:", error);
+    console.error("❌ ERRO DETALHADO:", error);
+
+    // Se o erro for 404 de novo, vamos dar uma pista melhor
+    if (error.message?.includes("404")) {
+      return res.status(500).json({
+        error: "Modelo não encontrado ou API fora de serviço nesta região.",
+        details: "Verifique se a versão do @google/generative-ai está atualizada.",
+      });
+    }
 
     return res.status(500).json({
-      error: "Falha ao processar o edital",
+      error: "Falha ao processar edital",
       details: error.message,
     });
   }
