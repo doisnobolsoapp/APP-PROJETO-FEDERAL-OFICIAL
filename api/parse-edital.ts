@@ -1,35 +1,37 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export default async function handler(req, res) {
+export default async function handler(req: any, res: any) {
   // Permitir apenas POST
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    // 🔥 Garantir parsing correto do body (Vercel bug comum)
-    const body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+    // 🔥 Corrige bug de parsing do body no Vercel
+    const body =
+      typeof req.body === "string" ? JSON.parse(req.body) : req.body;
 
     const { text, metadata } = body;
 
     // 🔥 Validação
     if (!text) {
-      return res.status(400).json({ error: 'Text is required' });
+      return res.status(400).json({ error: "Text is required" });
     }
 
-    // 🔥 Verificar API KEY
+    // 🔥 Verifica API KEY
     if (!process.env.GEMINI_API_KEY) {
       console.error("GEMINI_API_KEY não encontrada");
-      return res.status(500).json({ error: 'API Key não configurada' });
+      return res.status(500).json({ error: "API Key não configurada" });
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-pro-latest"
+    // ✅ MODELO ESTÁVEL (IMPORTANTE)
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash",
     });
 
-    // 🔥 Prompt corrigido (com crase)
+    // ✅ PROMPT
     const prompt = `
 Você é o Arquiteto de Sistemas do Projeto Federal. Sua missão é estruturar dados para um web app focado em carreiras policiais.
 
@@ -71,7 +73,8 @@ ${text}
 
 [REGRAS]
 - Responda APENAS com JSON válido
-- Não adicione explicações
+- Não use markdown
+- Não use crases
 - Mantenha a hierarquia do edital
 `;
 
@@ -81,26 +84,33 @@ ${text}
 
     const textResponse = response.text();
 
-    // 🔥 Segurança contra JSON inválido
+    // 🔥 Limpeza da resposta (evita erro clássico do Gemini)
+    const cleaned = textResponse
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
     let data;
+
     try {
-      data = JSON.parse(textResponse);
+      data = JSON.parse(cleaned);
     } catch (e) {
-      console.error("Resposta inválida da IA:", textResponse);
+      console.error("Resposta inválida da IA:", cleaned);
+
       return res.status(500).json({
         error: "Resposta da IA não é JSON válido",
-        raw: textResponse
+        raw: cleaned,
       });
     }
 
     return res.status(200).json(data);
 
-  } catch (error) {
-    console.error('Erro geral:', error);
+  } catch (error: any) {
+    console.error("Erro geral:", error);
 
     return res.status(500).json({
-      error: 'Failed to parse edital',
-      details: error.message
+      error: "Failed to parse edital",
+      details: error.message,
     });
   }
 }
