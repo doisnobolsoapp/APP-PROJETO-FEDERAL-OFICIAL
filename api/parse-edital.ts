@@ -21,7 +21,7 @@ export default async function handler(req: any, res: any) {
     }
 
     console.log("🔥 INICIANDO GEMINI...");
-    console.log("🔥 MODEL USADO: gemini-1.5-pro-latest");
+    console.log("🔥 MODEL USADO: gemini-1.5-pro");
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
