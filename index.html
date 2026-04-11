@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projeto Federal | Inteligência em Concursos</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#001f3f">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -495,14 +494,12 @@
                 </div>
             </form>
         </div>
-    </div>
 
-    <!-- Modal: Análise de Simulado IA -->
-    <div id="analysisModal" class="modal">
-        <div class="modal-content modal-lg">
+        <!-- Modal: Análise de Simulado IA -->
+        <div id="analysisModal" class="modal advanced-modal">
             <div class="modal-header">
                 <h3><i class="fas fa-brain"></i> Análise Estratégica IA</h3>
-                <button class="close-modal"><i class="fas fa-times"></i></button>
+                <button class="close-modal">&times;</button>
             </div>
             <div id="analysisContent" class="modal-body">
                 <div class="loading-state">
@@ -560,6 +557,6 @@
         </button>
     </div>
 
-    <script type="module" src="script.js"></script>
+    <script type="module" src="/src/main.js"></script>
 </body>
 </html>

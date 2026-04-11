@@ -2,7 +2,6 @@
  * Projeto Federal - Application Logic
  * Pure JavaScript (Vanilla JS)
  */
-import { GoogleGenAI } from "@google/genai";
 
 class StudyApp {
     constructor() {
@@ -32,29 +31,9 @@ class StudyApp {
         this.initElements();
         this.initEventListeners();
 
-        // Initialize AI
-        try {
-            this.ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-        } catch (error) {
-            console.error("AI Initialization failed:", error);
-        }
-
-        // Register Service Worker
-        this.registerServiceWorker();
-        
         // Initial Render
         this.renderAll();
         console.log("Projeto Federal: App Ready.");
-    }
-
-    registerServiceWorker() {
-        if ("serviceWorker" in navigator) {
-            window.addEventListener("load", () => {
-                navigator.serviceWorker.register("service-worker.js")
-                    .then(reg => console.log("Service Worker registered!", reg))
-                    .catch(err => console.error("Service Worker registration failed:", err));
-            });
-        }
     }
 
     initElements() {
@@ -389,61 +368,15 @@ class StudyApp {
         this.startParsingBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
 
         try {
-            const prompt = `Você é o Arquiteto de Sistemas do Projeto Federal. Sua missão é estruturar dados para um web app focado em carreiras policiais.
-
-[OBJETIVO]
-Transformar textos de editais brutos em um JSON estruturado que contenha:
-metadados: Info do concurso.
-dashboard: Resumo quantitativo por matéria.
-verticalizado: Lista detalhada de tópicos com campos de status.
-
-[METADADOS FORNECIDOS]
-Cargo: ${metadata.cargo}
-Órgão: ${metadata.orgao}
-Banca: ${metadata.banca}
-Data da Prova: ${metadata.data_prova}
-
-[CONTEÚDO PROGRAMÁTICO]
-${text}
-
-[ESTRUTURA DO OUTPUT (JSON)]
-O retorno deve seguir rigorosamente este esquema:
-{
-  "metadados": {
-    "cargo": "string",
-    "orgao": "string",
-    "banca": "string",
-    "data_prova": "string"
-  },
-  "dashboard": [
-    { "disciplina": "string", "total_topicos": number }
-  ],
-  "verticalizado": [
-    {
-      "disciplina": "string",
-      "topicos": [
-        { "id": "string", "descricao": "string" }
-      ]
-    }
-  ]
-}
-
-[RESTRITORES]
-Responda apenas com JSON.
-Mantenha a hierarquia do edital intacta.
-Se o usuário não informar a Data da Prova, defina como "Pré-Edital".
-IMPORTANTE: Certifique-se de que o JSON é válido.`;
-
-            const response = await this.ai.models.generateContent({
-                model: "gemini-3-flash-preview",
-                contents: prompt,
-                config: {
-                    temperature: 0,
-                    responseMimeType: "application/json"
-                }
+            const response = await fetch('/api/parse-edital', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text, metadata })
             });
 
-            const result = JSON.parse(response.text);
+            if (!response.ok) throw new Error('Falha na resposta da API');
+
+            const result = await response.json();
             this.parsedData = result;
             
             this.jsonOutput.textContent = JSON.stringify(result, null, 2);
@@ -878,67 +811,15 @@ IMPORTANTE: Certifique-se de que o JSON é válido.`;
         `;
 
         try {
-            const model = this.ai.getGenerativeModel({ 
-                model: "gemini-1.5-flash",
-                generationConfig: { responseMimeType: "application/json" }
+            const response = await fetch('/api/analyze-mock', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(mock)
             });
 
-            const systemPrompt = `
-Você é o motor de inteligência analítica do aplicativo web Projeto Federal, uma plataforma avançada de preparação para concursos públicos.
+            if (!response.ok) throw new Error('Falha na resposta da API');
 
-Sua função é:
-Interpretar dados de simulados
-Adaptar cálculos conforme a banca organizadora
-Gerar métricas de desempenho
-Produzir análise estratégica personalizada
-
-🎯 OBJETIVO PRINCIPAL
-Receber dados de simulados e retornar um JSON estruturado com:
-Métricas detalhadas por disciplina
-Métricas globais
-Cálculo correto conforme a banca
-Análise estratégica baseada no estilo da prova
-
-🏛️ REGRA CRÍTICA – ADAPTAÇÃO POR BANCA
-Você DEVE ajustar automaticamente os cálculos conforme a banca:
-🔵 Cebraspe (Certo/Errado) -> nota = acertos - erros
-🟣 FGV -> nota = acertos
-🟠 FCC -> nota = acertos × peso
-🟢 IDECAN (ou padrão genérico) -> nota = acertos
-
-🧠 ANÁLISE ESTRATÉGICA (ESSENCIAL)
-Identificar disciplinas fortes/fracas, padrão de erro e adaptar à banca.
-
-📦 FORMATO FINAL (OBRIGATÓRIO)
-Responder APENAS com JSON:
-{
-  "resumo_geral": {
-    "total_questoes": 0, "acertos": 0, "erros": 0, "brancos": 0, "percentual": 0, "nota_final": 0
-  },
-  "disciplinas": [
-    { "nome": "string", "questoes": 0, "acertos": 0, "erros": 0, "brancos": 0, "percentual": 0, "nota": 0, "nivel": "forte | medio | fraco" }
-  ],
-  "analise_IA": "texto estratégico detalhado"
-}`;
-
-            const inputData = {
-                nome: mock.name,
-                data: mock.date,
-                banca: mock.banca || (mock.type === 'certo_errado' ? 'Cebraspe' : 'Outra'),
-                disciplinas: mock.disciplines.map(d => ({
-                    nome: d.name,
-                    questoes: d.questions,
-                    acertos: d.correct,
-                    erros: d.errors,
-                    brancos: d.blanks,
-                    peso: d.weight
-                }))
-            };
-
-            const result = await model.generateContent([systemPrompt, JSON.stringify(inputData)]);
-            const response = await result.response;
-            const analysis = JSON.parse(response.text());
-
+            const analysis = await response.json();
             this.renderAnalysisResult(analysis);
 
         } catch (error) {
@@ -1272,41 +1153,15 @@ Responder APENAS com JSON:
                 };
             });
 
-            // Using the complex prompt from generateCycle to ensure UI compatibility
-            // but keeping the function name and structure requested by the user.
-            const model = this.ai.getGenerativeModel({ 
-                model: "gemini-1.5-flash", // Using a stable model alias
-                generationConfig: { responseMimeType: "application/json" }
+            const response = await fetch('/api/generate-cycle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(disciplinas)
             });
 
-            const systemPrompt = `
-Você é o motor de inteligência estratégica do aplicativo Projeto Federal.
-Gere um ciclo de estudos adaptativo com base nas disciplinas e desempenho fornecidos.
+            if (!response.ok) throw new Error('Falha na resposta da API');
 
-📦 FORMATO DO OUTPUT (OBRIGATÓRIO)
-Responder APENAS com JSON:
-{
-  "tipo": "ciclo_estudos_adaptativo",
-  "resumo": {
-    "disciplinas_prioritarias": ["string"],
-    "foco_principal": "string"
-  },
-  "ciclo": [
-    {
-      "ordem": 1,
-      "disciplina": "string",
-      "formato": "teoria | revisao | questoes",
-      "descricao": "string",
-      "tempo_min": 60,
-      "prioridade": "alta | media | baixa"
-    }
-  ],
-  "analise_IA": "texto estratégico explicando o ciclo"
-}`;
-
-            const result = await model.generateContent([systemPrompt, JSON.stringify(disciplinas)]);
-            const response = await result.response;
-            const cycleData = JSON.parse(response.text());
+            const cycleData = await response.json();
 
             // Transform AI output to internal format used by renderPlanning
             this.planning = {
@@ -1540,13 +1395,6 @@ Responder APENAS com JSON:
         document.getElementById('studyDate').valueAsDate = new Date();
         this.modalOverlay.classList.add('active');
         this.studyModal.classList.add('active');
-    }
-
-    openMockModal() {
-        this.mockForm.reset();
-        document.getElementById('mockDate').valueAsDate = new Date();
-        this.modalOverlay.classList.add('active');
-        this.mockModal.classList.add('active');
     }
 
     closeModals() {
