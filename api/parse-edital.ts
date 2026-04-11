@@ -1,62 +1,49 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default async function handler(req: any, res: any) {
-  // Permitir apenas POST
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
-    // 🔥 Corrige bug de parsing do body no Vercel
     const body =
       typeof req.body === "string" ? JSON.parse(req.body) : req.body;
 
     const { text, metadata } = body;
 
-    // 🔥 Validação
     if (!text) {
       return res.status(400).json({ error: "Text is required" });
     }
 
-    // 🔥 Verifica API KEY
     if (!process.env.GEMINI_API_KEY) {
-      console.error("GEMINI_API_KEY não encontrada");
+      console.error("❌ API KEY NÃO ENCONTRADA");
       return res.status(500).json({ error: "API Key não configurada" });
     }
 
+    console.log("🔥 INICIANDO GEMINI...");
+    console.log("🔥 MODEL USADO: gemini-1.5-pro-latest");
+
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-    // ✅ MODELO ESTÁVEL (IMPORTANTE)
     const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-pro",
+      model: "gemini-1.5-pro-latest", // ✅ MODELO CORRETO
     });
 
-    // ✅ PROMPT
     const prompt = `
-Você é o Arquiteto de Sistemas do Projeto Federal. Sua missão é estruturar dados para um web app focado em carreiras policiais.
+Você é um sistema que retorna APENAS JSON válido.
 
-[OBJETIVO]
-Transformar textos de editais brutos em um JSON estruturado que contenha:
-- metadados: Info do concurso.
-- dashboard: Resumo quantitativo por matéria.
-- verticalizado: Lista detalhada de tópicos.
+Transforme o texto abaixo em JSON estruturado.
 
-[METADADOS FORNECIDOS]
-Cargo: ${metadata?.cargo || ""}
-Órgão: ${metadata?.orgao || ""}
-Banca: ${metadata?.banca || ""}
-Data da Prova: ${metadata?.data_prova || "Pré-Edital"}
-
-[CONTEÚDO PROGRAMÁTICO]
+TEXTO:
 ${text}
 
-[ESTRUTURA DO OUTPUT (JSON)]
+FORMATO:
 {
   "metadados": {
-    "cargo": "string",
-    "orgao": "string",
-    "banca": "string",
-    "data_prova": "string"
+    "cargo": "${metadata?.cargo || ""}",
+    "orgao": "${metadata?.orgao || ""}",
+    "banca": "${metadata?.banca || ""}",
+    "data_prova": "${metadata?.data_prova || "Pré-Edital"}"
   },
   "dashboard": [
     { "disciplina": "string", "total_topicos": number }
@@ -71,20 +58,19 @@ ${text}
   ]
 }
 
-[REGRAS]
-- Responda APENAS com JSON válido
+REGRAS:
+- Retorne apenas JSON puro
 - Não use markdown
 - Não use crases
-- Mantenha a hierarquia do edital
 `;
 
-    // 🔥 Chamada da IA
     const result = await model.generateContent(prompt);
     const response = await result.response;
 
     const textResponse = response.text();
 
-    // 🔥 Limpeza da resposta (evita erro clássico do Gemini)
+    console.log("🔥 RESPOSTA BRUTA:", textResponse);
+
     const cleaned = textResponse
       .replace(/```json/g, "")
       .replace(/```/g, "")
@@ -95,7 +81,7 @@ ${text}
     try {
       data = JSON.parse(cleaned);
     } catch (e) {
-      console.error("Resposta inválida da IA:", cleaned);
+      console.error("❌ JSON INVÁLIDO:", cleaned);
 
       return res.status(500).json({
         error: "Resposta da IA não é JSON válido",
@@ -106,7 +92,7 @@ ${text}
     return res.status(200).json(data);
 
   } catch (error: any) {
-    console.error("Erro geral:", error);
+    console.error("❌ ERRO GERAL:", error);
 
     return res.status(500).json({
       error: "Failed to parse edital",
