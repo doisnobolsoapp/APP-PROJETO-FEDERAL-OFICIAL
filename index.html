@@ -12,7 +12,6 @@
     <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=PF&background=001f3f&color=fff&size=192">
     <script>
         // Fix for "Cannot set property fetch of #<Window> which has only a getter"
-        // This version uses a setter to gracefully handle attempts to overwrite fetch.
         (function() {
             try {
                 const originalFetch = window.fetch;
@@ -23,25 +22,18 @@
                         return originalFetch;
                     },
                     set: function(val) {
-                        // Silently ignore or log the attempt instead of throwing
                         console.warn('System: Attempted to overwrite window.fetch. This is blocked to prevent crashes.');
                     }
                 });
-            } catch (e) {
-                // If the property is not configurable, we can't do much, 
-                // but usually it is configurable even if it has only a getter.
-            }
+            } catch (e) {}
         })();
     </script>
-    <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="app-container">
-        <!-- Sidebar Overlay (Mobile) -->
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-        <!-- Sidebar Lateral -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
@@ -98,9 +90,7 @@
             </div>
         </aside>
 
-        <!-- Área Principal -->
         <main class="main-content">
-            <!-- Topo / Navbar -->
             <header class="top-navbar">
                 <div class="nav-left">
                     <button id="mobileMenuBtn" class="mobile-only">
@@ -114,7 +104,7 @@
                         <span>Adicionar Estudo</span>
                     </button>
                     <div class="user-status">
-                        <span class="plan-name">[Pós-Edital] Auditor Federal</span>
+                        <span class="plan-name">[Pós-Edital] Policial Federal</span>
                         <div class="user-avatar">
                             <img src="https://ui-avatars.com/api/?name=PF&background=2DCDAA&color=fff" alt="User">
                         </div>
@@ -122,11 +112,8 @@
                 </div>
             </header>
 
-            <!-- Conteúdo Dinâmico -->
             <div class="content-wrapper">
-                <!-- Dashboard Page -->
                 <div id="dashboard-page" class="page active">
-                    <!-- Dashboard Cards -->
                     <section class="dashboard-top">
                         <div class="card stat-card">
                             <div class="card-icon blue">
@@ -157,7 +144,6 @@
                         </div>
                     </section>
 
-                    <!-- Lista de Disciplinas -->
                     <section class="subjects-section">
                         <div class="section-header">
                             <h2>Minhas Disciplinas</h2>
@@ -166,7 +152,6 @@
                             </button>
                         </div>
                         <div class="subjects-grid" id="subjectsGrid">
-                            <!-- Disciplinas serão inseridas aqui via JS -->
                             <div class="empty-state">
                                 <i class="fas fa-book-open"></i>
                                 <p>Nenhuma disciplina cadastrada ainda.</p>
@@ -174,7 +159,6 @@
                         </div>
                     </section>
 
-                    <!-- Área Inferior: Lembretes e Atividades -->
                     <section class="bottom-grid">
                         <div class="card info-card">
                             <div class="card-header">
@@ -183,11 +167,7 @@
                             <div class="card-body" id="remindersList">
                                 <div class="reminder-item">
                                     <span class="dot"></span>
-                                    <p>Revisar Direito Constitucional amanhã</p>
-                                </div>
-                                <div class="reminder-item">
-                                    <span class="dot"></span>
-                                    <p>Simulado Nacional - Sábado 14h</p>
+                                    <p>Foco na missão: Prova dia 26/04</p>
                                 </div>
                             </div>
                         </div>
@@ -196,14 +176,12 @@
                                 <h3><i class="fas fa-history"></i> Últimas Atividades</h3>
                             </div>
                             <div class="card-body" id="recentActivities">
-                                <!-- Atividades inseridas via JS -->
                                 <div class="empty-state-sm">Sem atividades recentes.</div>
                             </div>
                         </div>
                     </section>
                 </div>
 
-                <!-- Parser Page -->
                 <div id="parser-page" class="page">
                     <div class="section-header">
                         <h2>Gerenciador de Inteligência de Dados</h2>
@@ -214,26 +192,6 @@
                             <div class="form-group">
                                 <label for="editalText">Conteúdo Programático (Texto Bruto)</label>
                                 <textarea id="editalText" rows="10" placeholder="Cole aqui o conteúdo programático do edital..."></textarea>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="cargoName">Cargo</label>
-                                    <input type="text" id="cargoName" placeholder="Ex: Auditor Fiscal">
-                                </div>
-                                <div class="form-group">
-                                    <label for="orgaoName">Órgão</label>
-                                    <input type="text" id="orgaoName" placeholder="Ex: Receita Federal">
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="bancaName">Banca</label>
-                                    <input type="text" id="bancaName" placeholder="Ex: FGV">
-                                </div>
-                                <div class="form-group">
-                                    <label for="provaDate">Data da Prova (Opcional)</label>
-                                    <input type="text" id="provaDate" placeholder="Ex: 25/12/2026">
-                                </div>
                             </div>
                             <button class="btn btn-primary btn-block" id="startParsingBtn">
                                 <i class="fas fa-bolt"></i> Processar com IA
@@ -257,7 +215,16 @@
                     </div>
                 </div>
 
-                <!-- Simulados Page -->
+                <div id="planning-page" class="page">
+                    <div class="section-header">
+                        <h2>Ciclo de Estudos Inteligente</h2>
+                        <button class="btn btn-primary" id="generatePlanningBtn">
+                            <i class="fas fa-magic"></i> Gerar Novo Ciclo
+                        </button>
+                    </div>
+                    <div id="planningContainer"></div>
+                </div>
+
                 <div id="mock-exams-page" class="page">
                     <div class="section-header">
                         <h2>Meus Simulados</h2>
@@ -265,298 +232,20 @@
                             <i class="fas fa-plus"></i> Novo Simulado
                         </button>
                     </div>
-                    <div class="card">
-                        <div class="table-responsive">
-                            <table class="data-table">
-                                <thead>
-                                    <tr>
-                                        <th>Data</th>
-                                        <th>Nome/Órgão</th>
-                                        <th>Questões</th>
-                                        <th>Acertos</th>
-                                        <th>Aproveitamento</th>
-                                        <th>Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="mockExamsTableBody">
-                                    <!-- Simulados inseridos via JS -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                    <div id="mockExamsTableBody"></div>
                 </div>
 
-                <!-- Other Pages (Placeholders) -->
-                <div id="plans-page" class="page">
-                    <div class="card"><h3>Meus Planos</h3><p>Gerencie seus planos de estudo aqui.</p></div>
-                </div>
-                <div id="subjects-page" class="page">
-                    <div class="card"><h3>Disciplinas Detalhadas</h3><p>Visão completa de todas as disciplinas.</p></div>
-                </div>
-                <div id="announcement-page" class="page">
-                    <div class="card"><h3>Edital Verticalizado</h3><p>Controle seu progresso no edital.</p></div>
-                </div>
-                <div id="stats-page" class="page">
-                    <div class="card"><h3>Estatísticas Avançadas</h3><p>Gráficos e análises de desempenho.</p></div>
-                </div>
-                <div id="planning-page" class="page">
-                    <div class="section-header">
-                        <h2>Ciclo de Estudos Inteligente</h2>
-                        <div class="planning-actions">
-                            <label class="toggle-container">
-                                <input type="checkbox" id="autoRecalculateToggle">
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Recalcular ciclo automaticamente</span>
-                            </label>
-                            <label class="toggle-container">
-                                <input type="checkbox" id="autoFollowPlanningToggle">
-                                <span class="toggle-slider"></span>
-                                <span class="toggle-label">Modo Inteligente (Seguir Ciclo)</span>
-                            </label>
-                            <button class="btn btn-primary" id="generatePlanningBtn">
-                                <i class="fas fa-magic"></i> Gerar Novo Ciclo
-                            </button>
-                        </div>
-                    </div>
-                    <div id="planningContainer">
-                        <!-- Planejamento será inserido aqui -->
-                        <div class="empty-state">
-                            <i class="fas fa-calendar-alt"></i>
-                            <p>Clique em "Gerar Novo Ciclo" para criar seu planejamento baseado nas disciplinas cadastradas.</p>
-                        </div>
-                    </div>
-                </div>
             </div>
         </main>
     </div>
 
-    <!-- Modais -->
-    <div class="modal-overlay" id="modalOverlay">
-        <!-- Modal Disciplina -->
-        <div class="modal" id="subjectModal">
-            <div class="modal-header">
-                <h3 id="subjectModalTitle">Nova Disciplina</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <form id="subjectForm">
-                <input type="hidden" id="editSubjectId">
-                <div class="form-group">
-                    <label for="subjectName">Nome da Disciplina</label>
-                    <input type="text" id="subjectName" required placeholder="Ex: Direito Administrativo">
-                </div>
-                <div class="form-group">
-                    <label for="subjectGoal">Meta de Horas (Opcional)</label>
-                    <input type="number" id="subjectGoal" min="0" placeholder="Ex: 50">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary cancel-modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Salvar</button>
-                </div>
-            </form>
-        </div>
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div id="toast" class="toast"><div class="toast-content"><span id="toastMessage"></span></div></div>
 
-        <!-- Modal Estudo -->
-        <div class="modal" id="studyModal">
-            <div class="modal-header">
-                <h3>Registrar Estudo</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <form id="studyForm">
-                <div class="form-group">
-                    <label for="studySubject">Disciplina</label>
-                    <select id="studySubject" required>
-                        <option value="">Selecione...</option>
-                    </select>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="studyTime">Tempo (minutos)</label>
-                        <input type="number" id="studyTime" min="1" required placeholder="Ex: 60">
-                    </div>
-                    <div class="form-group">
-                        <label for="studyDate">Data</label>
-                        <input type="date" id="studyDate" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="studyQuestions">Questões</label>
-                        <input type="number" id="studyQuestions" min="0" value="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="studyCorrect">Acertos</label>
-                        <input type="number" id="studyCorrect" min="0" value="0">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary cancel-modal">Cancelar</button>
-                    <button type="submit" class="btn btn-primary">Registrar</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- Modal Simulado Avançado -->
-        <div class="modal advanced-modal" id="mockModal">
-            <div class="modal-header">
-                <h3><i class="fas fa-file-signature"></i> Registrar Simulado Profissional</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <form id="mockForm">
-                <div class="form-row">
-                    <div class="form-group flex-2">
-                        <label for="mockName">Nome do Simulado / Órgão</label>
-                        <input type="text" id="mockName" required placeholder="Ex: Simulado PF - Estratégia">
-                    </div>
-                    <div class="form-group">
-                        <label for="mockDate">Data</label>
-                        <input type="date" id="mockDate" required>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="mockType">Estilo de Prova</label>
-                        <select id="mockType">
-                            <option value="multipla">Múltipla Escolha</option>
-                            <option value="certo_errado">Certo/Errado (CESPE)</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="mockBanca">Banca Organizadora</label>
-                        <select id="mockBanca">
-                            <option value="Cebraspe">Cebraspe</option>
-                            <option value="FGV">FGV</option>
-                            <option value="FCC">FCC</option>
-                            <option value="IDECAN">IDECAN</option>
-                            <option value="Outra">Outra</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="mockTime">Tempo Gasto (HH:MM:SS)</label>
-                        <input type="text" id="mockTime" placeholder="00:00:00" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}">
-                    </div>
-                </div>
-
-                <div class="mock-disciplines-section">
-                    <div class="section-header-sm">
-                        <h4><i class="fas fa-list-ol"></i> Desempenho por Disciplina</h4>
-                        <button type="button" class="btn-sm btn-outline" id="addMockDisciplineBtn">
-                            <i class="fas fa-plus"></i> Adicionar Matéria
-                        </button>
-                    </div>
-                    
-                    <div class="table-responsive">
-                        <table class="mock-table" id="mockDisciplinesTable">
-                            <thead>
-                                <tr>
-                                    <th>Disciplina</th>
-                                    <th style="width: 60px;">Peso</th>
-                                    <th style="width: 70px;">Quest.</th>
-                                    <th style="width: 70px;">Acertos</th>
-                                    <th style="width: 70px;">Erros</th>
-                                    <th style="width: 70px;">Brancos</th>
-                                    <th style="width: 70px;">%</th>
-                                    <th style="width: 40px;"></th>
-                                </tr>
-                            </thead>
-                            <tbody id="mockDisciplinesBody">
-                                <!-- Preenchido via JS -->
-                            </tbody>
-                            <tfoot>
-                                <tr class="table-total-row">
-                                    <td><strong>TOTAL GERAL</strong></td>
-                                    <td>-</td>
-                                    <td id="totalMockQuestions">0</td>
-                                    <td id="totalMockCorrect" class="text-green">0</td>
-                                    <td id="totalMockErrors" class="text-red">0</td>
-                                    <td id="totalMockBlanks">0</td>
-                                    <td id="totalMockPercent" class="font-bold">0%</td>
-                                    <td></td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="form-group" style="margin-top: 1rem;">
-                    <label for="mockComments">Comentários e Observações</label>
-                    <textarea id="mockComments" rows="2" placeholder="O que você sentiu nessa prova? Quais pontos melhorar?"></textarea>
-                </div>
-
-                <div class="modal-footer">
-                    <div class="mock-final-score">
-                        <span>Nota Final Estimada: <strong id="mockFinalScore">0.00</strong></span>
-                    </div>
-                    <div class="footer-btns">
-                        <button type="button" class="btn btn-secondary cancel-modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary">Salvar Simulado</button>
-                    </div>
-                </div>
-            </form>
-        </div>
-
-        <!-- Modal: Análise de Simulado IA -->
-        <div id="analysisModal" class="modal advanced-modal">
-            <div class="modal-header">
-                <h3><i class="fas fa-brain"></i> Análise Estratégica IA</h3>
-                <button class="close-modal">&times;</button>
-            </div>
-            <div id="analysisContent" class="modal-body">
-                <div class="loading-state">
-                    <i class="fas fa-spinner fa-spin"></i>
-                    <p>A inteligência artificial está analisando seu desempenho...</p>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary close-modal">Fechar</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toast Notification -->
-    <div id="toast" class="toast">
-        <div class="toast-content">
-            <i class="fas fa-check-circle"></i>
-            <span id="toastMessage">Ação realizada com sucesso!</span>
-        </div>
-    </div>
-
-    <!-- Floating Timer -->
     <div id="floatingTimer" class="floating-timer">
-        <div id="timerPanel" class="timer-panel">
-            <div class="timer-header">
-                <span>Cronômetro de Estudo</span>
-                <button id="closeTimerPanel"><i class="fas fa-times"></i></button>
-            </div>
-            
-            <!-- Task Info (Intelligent Mode) -->
-            <div id="timerTaskInfo" class="timer-task-info hidden">
-                <div class="task-meta">
-                    <span id="timerTaskSubject" class="task-subject">Disciplina</span>
-                    <span id="timerTaskType" class="badge-sm">Teoria</span>
-                </div>
-                <div class="task-progress-container">
-                    <div class="task-progress-bar">
-                        <div id="timerTaskProgress" class="task-progress-fill" style="width: 0%"></div>
-                    </div>
-                    <div class="task-time-info">
-                        <span id="timerTaskElapsed">00:00</span> / <span id="timerTaskPlanned">00:00</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="timer-display" id="timerDisplay">00:00:00</div>
-            <div class="timer-controls">
-                <button id="startTimerBtn" class="btn-timer start"><i class="fas fa-play"></i></button>
-                <button id="pauseTimerBtn" class="btn-timer pause" style="display: none;"><i class="fas fa-pause"></i></button>
-                <button id="resetTimerBtn" class="btn-timer reset"><i class="fas fa-undo"></i></button>
-            </div>
-        </div>
-        <button id="toggleTimerBtn" class="floating-timer-btn">
-            <i class="fas fa-stopwatch"></i>
-        </button>
+        <button id="toggleTimerBtn" class="floating-timer-btn"><i class="fas fa-stopwatch"></i></button>
     </div>
 
-    <script type="module" src="/src/main.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
