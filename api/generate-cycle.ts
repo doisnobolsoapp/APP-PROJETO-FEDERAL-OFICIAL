@@ -7,8 +7,15 @@ export default async function handler(req, res) {
 
   const disciplinas = req.body;
 
+  // Validação de segurança
+  if (!disciplinas || !Array.isArray(disciplinas) || disciplinas.length === 0) {
+    return res.status(400).json({ error: 'Nenhuma disciplina fornecida para gerar o ciclo.' });
+  }
+
   try {
-    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+    // CORREÇÃO: Removido o "!" (syntax sugar de TS)
+    const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+    
     const model = genAI.getGenerativeModel({ 
       model: "gemini-1.5-flash",
       generationConfig: { responseMimeType: "application/json" }
@@ -16,16 +23,15 @@ export default async function handler(req, res) {
 
     const systemPrompt = `
 Você é o motor de inteligência estratégica do aplicativo Projeto Federal.
-Sua missão é gerar um ciclo de estudos adaptativo e inteligente baseado no desempenho do aluno.
+Sua missão é gerar um ciclo de estudos adaptativo (Ciclo de Estudo) para o concurso de Policial Legislativo Federal.
 
 [DIRETRIZES PEDAGÓGICAS]
-1. Spaced Repetition: Inclua revisões periódicas (24h, 7d).
-2. Interleaving: Alterne entre disciplinas diferentes para melhorar a retenção.
-3. Foco em Fraquezas: Disciplinas com desempenho < 50% devem ter mais carga horária e foco em Teoria.
-4. Manutenção: Disciplinas com desempenho > 80% devem focar em Questões e Revisão rápida.
+1. Spaced Repetition: Inclua revisões periódicas.
+2. Interleaving: Alterne entre disciplinas jurídicas e exatas/gerais para evitar fadiga mental.
+3. Foco em Fraquezas: Se o acerto for < 60%, priorize Teoria. Se > 80%, priorize Questões e Simulados.
+4. Carga Horária: Distribua o tempo de forma lógica (blocos de 60 a 90 min).
 
-📦 FORMATO DO OUTPUT (OBRIGATÓRIO)
-Responder APENAS com JSON:
+📦 FORMATO DO OUTPUT (JSON):
 {
   "tipo": "ciclo_estudos_adaptativo",
   "resumo": {
@@ -42,16 +48,24 @@ Responder APENAS com JSON:
       "prioridade": "alta | media | baixa"
     }
   ],
-  "analise_IA": "texto estratégico explicando o ciclo"
+  "analise_IA": "Explicação estratégica do porquê desta ordem."
 }`;
 
-    const result = await model.generateContent([systemPrompt, JSON.stringify(disciplinas)]);
+    // Chamada formatada para maior estabilidade
+    const result = await model.generateContent([
+      { text: systemPrompt },
+      { text: `Gere um ciclo com base nestes dados de desempenho: ${JSON.stringify(disciplinas)}` }
+    ]);
+
     const response = await result.response;
     const cycleData = JSON.parse(response.text());
 
     res.status(200).json(cycleData);
   } catch (error) {
     console.error('Error generating cycle:', error);
-    res.status(500).json({ error: 'Failed to generate cycle', details: error.message });
+    res.status(500).json({ 
+      error: 'Erro ao gerar ciclo', 
+      details: error.message 
+    });
   }
 }
