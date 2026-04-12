@@ -12,7 +12,8 @@
     <meta name="apple-mobile-web-app-title" content="Projeto Federal">
     <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=PF&background=001f3f&color=fff&size=192">
     
-    <link rel="stylesheet" href="style.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="./src/style.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="app-container">
@@ -28,6 +29,7 @@
                     <i class="fas fa-chevron-left"></i>
                 </button>
             </div>
+            
             <nav class="sidebar-nav">
                 <div class="nav-item active" data-page="dashboard">
                     <i class="fas fa-th-large"></i>
@@ -60,6 +62,7 @@
                     </button>
                 </div>
             </nav>
+            
             <div class="sidebar-footer">
                 <p>© 2026 Projeto Federal</p>
             </div>
@@ -126,7 +129,7 @@
                     </section>
                 </div>
 
-                <div id="parser-page" class="page">
+                <div id="parser-page" class="page hidden">
                     <div class="section-header">
                         <h2>Importar Edital</h2>
                     </div>
@@ -140,7 +143,7 @@
                         </div>
                     </div>
                 </div>
-
+                
                 </div>
         </main>
     </div>
@@ -152,7 +155,7 @@
             <h3>Registrar Estudo</h3>
             <button class="close-modal">&times;</button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body" id="studyModalBody">
             </div>
     </div>
 
@@ -176,6 +179,6 @@
         </button>
     </div>
 
-    <script type="module" src="app.js"></script>
+    <script type="module" src="./src/app.js"></script>
 </body>
 </html>
