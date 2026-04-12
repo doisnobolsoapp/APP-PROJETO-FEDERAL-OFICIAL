@@ -10,7 +10,7 @@
       "destination": "/assets/$1"
     },
     {
-      "source": "/((?!api|assets|favicon.ico|sw.js).* )",
+      "source": "/((?!api|assets|favicon.ico|sw.js).*)",
       "destination": "/index.html"
     }
   ]
