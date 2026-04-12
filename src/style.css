@@ -1,161 +1,155 @@
-/**
- * Projeto Federal - Application Logic 
- * Sincronizado com Style.css (Otimizado)
- */
-
-class StudyApp {
-    constructor() {
-        // Inicialização de Dados (LocalStorage)
-        this.subjects = JSON.parse(localStorage.getItem('pf_subjects')) || [];
-        this.history = JSON.parse(localStorage.getItem('pf_history')) || [];
-        this.timer = JSON.parse(localStorage.getItem('pf_timer')) || { seconds: 0, running: false };
-        this.timerInterval = null;
-
-        this.initElements();
-        this.initEventListeners();
-        
-        // Estado Inicial: Abre na Dashboard
-        this.navigateTo('dashboard');
-        
-        if (this.timer.running) this.startTimer();
-    }
-
-    initElements() {
-        // Elementos Estruturais (Conforme seu Style.css)
-        this.sidebar = document.querySelector('.sidebar');
-        this.sidebarOverlay = document.querySelector('.sidebar-overlay');
-        this.mainContent = document.querySelector('.main-content');
-        
-        // Botões de Controle
-        this.toggleSidebarBtn = document.getElementById('toggleSidebar'); // Desktop
-        this.mobileMenuBtn = document.getElementById('mobileMenuBtn');   // Mobile
-        
-        // Navegação
-        this.navItems = document.querySelectorAll('.nav-item');
-        this.pages = document.querySelectorAll('.page');
-        this.pageTitle = document.getElementById('pageTitle');
-
-        // Timer (Floating Timer no seu CSS)
-        this.timerPanel = document.querySelector('.timer-panel');
-        this.toggleTimerBtn = document.getElementById('toggleTimerBtn');
-        this.timerDisplay = document.getElementById('timerDisplay');
-        this.startTimerBtn = document.getElementById('startTimerBtn');
-        this.pauseTimerBtn = document.getElementById('pauseTimerBtn');
-    }
-
-    initEventListeners() {
-        // 1. Sidebar Desktop (Toggle class .collapsed)
-        if (this.toggleSidebarBtn) {
-            this.toggleSidebarBtn.addEventListener('click', () => {
-                this.sidebar.classList.toggle('collapsed');
-            });
-        }
-
-        // 2. Sidebar Mobile (Toggle class .active)
-        if (this.mobileMenuBtn) {
-            this.mobileMenuBtn.addEventListener('click', () => {
-                this.sidebar.classList.add('active');
-                if (this.sidebarOverlay) this.sidebarOverlay.classList.add('active');
-            });
-        }
-
-        // 3. Fechar Sidebar Mobile (Overlay)
-        if (this.sidebarOverlay) {
-            this.sidebarOverlay.addEventListener('click', () => {
-                this.sidebar.classList.remove('active');
-                this.sidebarOverlay.classList.remove('active');
-            });
-        }
-
-        // 4. Navegação entre Páginas
-        this.navItems.forEach(item => {
-            item.addEventListener('click', (e) => {
-                e.preventDefault();
-                const pageId = item.getAttribute('data-page');
-                if (pageId) {
-                    this.navigateTo(pageId);
-                    
-                    // Fecha sidebar se estiver no mobile
-                    if (window.innerWidth <= 768) {
-                        this.sidebar.classList.remove('active');
-                        if (this.sidebarOverlay) this.sidebarOverlay.classList.remove('active');
-                    }
-                }
-            });
-        });
-
-        // 5. Floating Timer Panel (Toggle class .active do CSS)
-        if (this.toggleTimerBtn) {
-            this.toggleTimerBtn.addEventListener('click', () => {
-                this.timerPanel.classList.toggle('active');
-            });
-        }
-
-        // 6. Timer Controls
-        if (this.startTimerBtn) this.startTimerBtn.addEventListener('click', () => this.startTimer());
-        if (this.pauseTimerBtn) this.pauseTimerBtn.addEventListener('click', () => this.pauseTimer());
-    }
-
-    navigateTo(pageId) {
-        // Usa a classe .hidden que você definiu no CSS
-        this.pages.forEach(page => {
-            if (page.id === `${pageId}-page`) {
-                page.classList.remove('hidden');
-            } else {
-                page.classList.add('hidden');
-            }
-        });
-
-        // Atualiza estado visual da Sidebar
-        this.navItems.forEach(nav => {
-            if (nav.getAttribute('data-page') === pageId) {
-                nav.classList.add('active');
-                if (this.pageTitle) {
-                    const span = nav.querySelector('span');
-                    this.pageTitle.textContent = span ? span.textContent : pageId;
-                }
-            } else {
-                nav.classList.remove('active');
-            }
-        });
-
-        window.scrollTo(0, 0);
-    }
-
-    // --- Lógica do Timer ---
-    startTimer() {
-        if (this.timerInterval) clearInterval(this.timerInterval);
-        this.timer.running = true;
-        
-        if (this.startTimerBtn) this.startTimerBtn.classList.add('hidden');
-        if (this.pauseTimerBtn) this.pauseTimerBtn.classList.remove('hidden');
-
-        this.timerInterval = setInterval(() => {
-            this.timer.seconds++;
-            this.updateTimerDisplay();
-            localStorage.setItem('pf_timer', JSON.stringify(this.timer));
-        }, 1000);
-    }
-
-    pauseTimer() {
-        this.timer.running = false;
-        clearInterval(this.timerInterval);
-        if (this.startTimerBtn) this.startTimerBtn.classList.remove('hidden');
-        if (this.pauseTimerBtn) this.pauseTimerBtn.classList.add('hidden');
-        localStorage.setItem('pf_timer', JSON.stringify(this.timer));
-    }
-
-    updateTimerDisplay() {
-        if (!this.timerDisplay) return;
-        const h = Math.floor(this.timer.seconds / 3600);
-        const m = Math.floor((this.timer.seconds % 3600) / 60);
-        const s = this.timer.seconds % 60;
-        this.timerDisplay.textContent = 
-            `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-    }
+/* Projeto Federal - Estilos Oficiais */
+:root {
+    --primary-color: #001f3f; /* Azul Marinho */
+    --secondary-color: #0074D9;
+    --bg-color: #f4f7f6;
+    --text-color: #333;
+    --sidebar-width: 260px;
+    --sidebar-collapsed: 70px;
+    --white: #ffffff;
+    --transition: all 0.3s ease;
 }
 
-// Inicialização
-document.addEventListener('DOMContentLoaded', () => {
-    window.app = new StudyApp();
-});
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    overflow-x: hidden;
+}
+
+/* Estrutura Principal */
+.app-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--primary-color);
+    color: var(--white);
+    height: 100vh;
+    position: fixed;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+.sidebar.collapsed {
+    width: var(--sidebar-collapsed);
+}
+
+.sidebar.collapsed span, 
+.sidebar.collapsed .sidebar-footer {
+    display: none;
+}
+
+/* Conteúdo Principal */
+.main-content {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    transition: var(--transition);
+    padding: 20px;
+}
+
+.sidebar.collapsed + .main-content {
+    margin-left: var(--sidebar-collapsed);
+}
+
+/* Utilitários */
+.hidden {
+    display: none !important;
+}
+
+.page {
+    animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Cards da Dashboard */
+.dashboard-top {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.card {
+    background: var(--white);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+}
+
+.card-icon {
+    font-size: 2rem;
+    margin-right: 15px;
+}
+
+.blue { color: var(--secondary-color); }
+.green { color: #2ecc40; }
+.purple { color: #b10dc9; }
+
+/* Timer Flutuante */
+.floating-timer {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 2000;
+}
+
+.timer-panel {
+    background: var(--white);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    margin-bottom: 10px;
+    display: none;
+    text-align: center;
+}
+
+.timer-panel.active {
+    display: block;
+}
+
+.timer-display {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .sidebar {
+        left: -100%;
+    }
+    .sidebar.active {
+        left: 0;
+        width: var(--sidebar-width);
+    }
+    .main-content {
+        margin-left: 0 !important;
+    }
+    .sidebar-overlay.active {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+    }
+}
