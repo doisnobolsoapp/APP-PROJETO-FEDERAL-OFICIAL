@@ -1,45 +1,32 @@
 import path from 'path';
 import { defineConfig } from 'vite';
-import express from 'express';
-
-// API Handlers
-import parseEditalHandler from './api/parse-edital.ts';
-import analyzeMockHandler from './api/analyze-mock.ts';
-import generateCycleHandler from './api/generate-cycle.ts';
 
 export default defineConfig({
+  // Define a raiz como a pasta atual (onde está o index.html)
   base: '/',
   build: {
     outDir: 'dist',
+    // Garante que o build não tente processar arquivos fora do escopo do front-end
+    emptyOutDir: true,
   },
   server: {
     host: true,
     port: 3000,
-    hmr: false, // Disabled as requested
+    // Proxy opcional para desenvolvimento local:
+    // Redireciona chamadas /api para o servidor local se necessário
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
+    },
   },
   resolve: {
     alias: {
+      // Mantém seu alias para facilitar imports na pasta src
       '@': path.resolve(__dirname, './src'),
     },
   },
-  plugins: [
-    {
-      name: 'api-server',
-      configureServer(server) {
-        server.middlewares.use(express.json());
-        server.middlewares.use((req, res, next) => {
-          if (req.url === '/api/parse-edital' && req.method === 'POST') {
-            return parseEditalHandler(req, res);
-          }
-          if (req.url === '/api/analyze-mock' && req.method === 'POST') {
-            return analyzeMockHandler(req, res);
-          }
-          if (req.url === '/api/generate-cycle' && req.method === 'POST') {
-            return generateCycleHandler(req, res);
-          }
-          next();
-        });
-      },
-    },
-  ],
+  // Removido o plugin 'api-server' que causava o erro de importação
+  plugins: [],
 });
