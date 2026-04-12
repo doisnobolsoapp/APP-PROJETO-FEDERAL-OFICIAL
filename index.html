@@ -2,34 +2,19 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Projeto Federal | Inteligência em Concursos</title>
+    
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#001f3f">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Projeto Federal">
     <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=PF&background=001f3f&color=fff&size=192">
-    <script>
-        // Fix for "Cannot set property fetch of #<Window> which has only a getter"
-        (function() {
-            try {
-                const originalFetch = window.fetch;
-                Object.defineProperty(window, 'fetch', {
-                    configurable: true,
-                    enumerable: true,
-                    get: function() {
-                        return originalFetch;
-                    },
-                    set: function(val) {
-                        console.warn('System: Attempted to overwrite window.fetch. This is blocked to prevent crashes.');
-                    }
-                });
-            } catch (e) {}
-        })();
-    </script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-</head>
+    
+    </head>
 <body>
     <div class="app-container">
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -116,27 +101,21 @@
                 <div id="dashboard-page" class="page active">
                     <section class="dashboard-top">
                         <div class="card stat-card">
-                            <div class="card-icon blue">
-                                <i class="fas fa-clock"></i>
-                            </div>
+                            <div class="card-icon blue"><i class="fas fa-clock"></i></div>
                             <div class="card-info">
                                 <h3>Tempo de Estudo</h3>
                                 <p id="totalStudyTime">0h 00min</p>
                             </div>
                         </div>
                         <div class="card stat-card">
-                            <div class="card-icon green">
-                                <i class="fas fa-bullseye"></i>
-                            </div>
+                            <div class="card-icon green"><i class="fas fa-bullseye"></i></div>
                             <div class="card-info">
                                 <h3>Desempenho</h3>
                                 <p id="overallPerformance">0%</p>
                             </div>
                         </div>
                         <div class="card stat-card">
-                            <div class="card-icon purple">
-                                <i class="fas fa-tasks"></i>
-                            </div>
+                            <div class="card-icon purple"><i class="fas fa-tasks"></i></div>
                             <div class="card-info">
                                 <h3>Progresso no Edital</h3>
                                 <p id="overallProgress">0%</p>
@@ -161,9 +140,7 @@
 
                     <section class="bottom-grid">
                         <div class="card info-card">
-                            <div class="card-header">
-                                <h3><i class="fas fa-bell"></i> Lembretes</h3>
-                            </div>
+                            <div class="card-header"><h3><i class="fas fa-bell"></i> Lembretes</h3></div>
                             <div class="card-body" id="remindersList">
                                 <div class="reminder-item">
                                     <span class="dot"></span>
@@ -172,9 +149,7 @@
                             </div>
                         </div>
                         <div class="card info-card">
-                            <div class="card-header">
-                                <h3><i class="fas fa-history"></i> Últimas Atividades</h3>
-                            </div>
+                            <div class="card-header"><h3><i class="fas fa-history"></i> Últimas Atividades</h3></div>
                             <div class="card-body" id="recentActivities">
                                 <div class="empty-state-sm">Sem atividades recentes.</div>
                             </div>
@@ -189,6 +164,12 @@
                     </div>
                     <div class="card parser-card">
                         <div class="card-body">
+                            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                                <input type="text" id="cargoName" placeholder="Cargo (Ex: Policial Legislativo)">
+                                <input type="text" id="orgaoName" placeholder="Órgão (Ex: Câmara)">
+                                <input type="text" id="bancaName" placeholder="Banca (Ex: FGV)">
+                                <input type="date" id="provaDate">
+                            </div>
                             <div class="form-group">
                                 <label for="editalText">Conteúdo Programático (Texto Bruto)</label>
                                 <textarea id="editalText" rows="10" placeholder="Cole aqui o conteúdo programático do edital..."></textarea>
@@ -200,9 +181,7 @@
                     </div>
                     <div id="parserResult" class="parser-result hidden">
                         <div class="card">
-                            <div class="card-header">
-                                <h3>Resultado do Processamento</h3>
-                            </div>
+                            <div class="card-header"><h3>Resultado do Processamento</h3></div>
                             <div class="card-body">
                                 <pre id="jsonOutput" class="json-viewer"></pre>
                                 <div class="action-buttons">
@@ -232,9 +211,20 @@
                             <i class="fas fa-plus"></i> Novo Simulado
                         </button>
                     </div>
-                    <div id="mockExamsTableBody"></div>
+                    <div class="card">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Banca</th>
+                                    <th>Desempenho</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mockExamsTableBody"></tbody>
+                        </table>
+                    </div>
                 </div>
-
             </div>
         </main>
     </div>
@@ -246,6 +236,6 @@
         <button id="toggleTimerBtn" class="floating-timer-btn"><i class="fas fa-stopwatch"></i></button>
     </div>
 
-    <script src="app.js"></script>
+    <script type="module" src="/app.js"></script>
 </body>
 </html>
