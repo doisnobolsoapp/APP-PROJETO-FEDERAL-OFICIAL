@@ -1,42 +1,42 @@
 /**
  * Projeto Federal - Application Logic
- * Sincronizado com o build do Vite e Style.css
+ * Versão Final Sincronizada com Vite & Style.css
  */
 
 class StudyApp {
     constructor() {
-        // Inicialização de Dados com Fallback
+        // 1. Estado (LocalStorage)
         this.subjects = JSON.parse(localStorage.getItem('pf_subjects')) || [];
         this.history = JSON.parse(localStorage.getItem('pf_history')) || [];
         this.timer = JSON.parse(localStorage.getItem('pf_timer')) || { seconds: 0, running: false };
         this.timerInterval = null;
 
+        // 2. Inicialização de Elementos e Eventos
         this.initElements();
         this.initEventListeners();
         
-        // Estado Inicial: Força a página de Dashboard
+        // 3. Estado Inicial: Dashboard visível por padrão
         this.navigateTo('dashboard');
         
-        // Recupera Timer se estivesse rodando
+        // 4. Retoma Timer se necessário
         if (this.timer.running) this.startTimer();
     }
 
     initElements() {
-        // Elementos Estruturais (Críticos para o Layout no Style.css)
+        // Seletores principais baseados no seu Style.css
         this.sidebar = document.querySelector('.sidebar');
         this.sidebarOverlay = document.querySelector('.sidebar-overlay');
-        this.mainContent = document.querySelector('.main-content');
         
-        // Botões de Controle (Devem existir no seu HTML)
+        // IDs do HTML
         this.toggleSidebarBtn = document.getElementById('toggleSidebar'); 
         this.mobileMenuBtn = document.getElementById('mobileMenuBtn');   
-        
-        // Navegação
-        this.navItems = document.querySelectorAll('.nav-item');
-        this.pages = document.querySelectorAll('.page');
         this.pageTitle = document.getElementById('pageTitle');
 
-        // Timer e Modais
+        // Coleções para Navegação
+        this.navItems = document.querySelectorAll('.nav-item');
+        this.pages = document.querySelectorAll('.page');
+
+        // Timer Panel (Floating Timer)
         this.timerPanel = document.querySelector('.timer-panel');
         this.toggleTimerBtn = document.getElementById('toggleTimerBtn');
         this.timerDisplay = document.getElementById('timerDisplay');
@@ -45,14 +45,14 @@ class StudyApp {
     }
 
     initEventListeners() {
-        // 1. Sidebar Desktop (Toggle class .collapsed)
+        // Toggle Sidebar Desktop (Classe .collapsed conforme style.css)
         if (this.toggleSidebarBtn) {
             this.toggleSidebarBtn.addEventListener('click', () => {
                 this.sidebar.classList.toggle('collapsed');
             });
         }
 
-        // 2. Sidebar Mobile (Toggle class .active)
+        // Sidebar Mobile (Classe .active conforme style.css)
         if (this.mobileMenuBtn) {
             this.mobileMenuBtn.addEventListener('click', () => {
                 this.sidebar.classList.add('active');
@@ -60,7 +60,7 @@ class StudyApp {
             });
         }
 
-        // 3. Fechar Sidebar Mobile (Overlay)
+        // Overlay Mobile
         if (this.sidebarOverlay) {
             this.sidebarOverlay.addEventListener('click', () => {
                 this.sidebar.classList.remove('active');
@@ -68,14 +68,14 @@ class StudyApp {
             });
         }
 
-        // 4. Navegação entre Páginas (Usa a classe .hidden do seu CSS)
+        // Navegação de Páginas
         this.navItems.forEach(item => {
             item.addEventListener('click', (e) => {
                 const pageId = item.getAttribute('data-page');
                 if (pageId) {
                     this.navigateTo(pageId);
                     
-                    // No mobile, fecha a sidebar ao selecionar
+                    // Fecha sidebar no mobile após clique
                     if (window.innerWidth <= 768) {
                         this.sidebar.classList.remove('active');
                         if (this.sidebarOverlay) this.sidebarOverlay.classList.remove('active');
@@ -84,20 +84,20 @@ class StudyApp {
             });
         });
 
-        // 5. Timer Panel (Abre/Fecha usando .active)
+        // Timer Toggle (.active conforme style.css)
         if (this.toggleTimerBtn) {
             this.toggleTimerBtn.addEventListener('click', () => {
-                if (this.timerPanel) this.timerPanel.classList.toggle('active');
+                this.timerPanel.classList.toggle('active');
             });
         }
 
-        // 6. Controles do Cronômetro
+        // Controles do Timer
         if (this.startTimerBtn) this.startTimerBtn.addEventListener('click', () => this.startTimer());
         if (this.pauseTimerBtn) this.pauseTimerBtn.addEventListener('click', () => this.pauseTimer());
     }
 
     navigateTo(pageId) {
-        // Gerencia visibilidade das páginas usando .hidden do style.css
+        // Aplica a classe .hidden definida no final do seu CSS
         this.pages.forEach(page => {
             if (page.id === `${pageId}-page`) {
                 page.classList.remove('hidden');
@@ -106,7 +106,7 @@ class StudyApp {
             }
         });
 
-        // Gerencia estado visual dos botões na sidebar
+        // Atualiza estado visual da sidebar
         this.navItems.forEach(nav => {
             if (nav.getAttribute('data-page') === pageId) {
                 nav.classList.add('active');
@@ -122,14 +122,13 @@ class StudyApp {
         window.scrollTo(0, 0);
     }
 
-    // --- Funcionalidades do Timer ---
+    // --- Cronômetro ---
     startTimer() {
         if (this.timerInterval) clearInterval(this.timerInterval);
         this.timer.running = true;
         
-        // UI: Troca botões usando display ou hidden
-        if (this.startTimerBtn) this.startTimerBtn.style.display = 'none';
-        if (this.pauseTimerBtn) this.pauseTimerBtn.style.display = 'flex';
+        if (this.startTimerBtn) this.startTimerBtn.classList.add('hidden');
+        if (this.pauseTimerBtn) this.pauseTimerBtn.classList.remove('hidden');
 
         this.timerInterval = setInterval(() => {
             this.timer.seconds++;
@@ -141,8 +140,8 @@ class StudyApp {
     pauseTimer() {
         this.timer.running = false;
         clearInterval(this.timerInterval);
-        if (this.startTimerBtn) this.startTimerBtn.style.display = 'flex';
-        if (this.pauseTimerBtn) this.pauseTimerBtn.style.display = 'none';
+        if (this.startTimerBtn) this.startTimerBtn.classList.remove('hidden');
+        if (this.pauseTimerBtn) this.pauseTimerBtn.classList.add('hidden');
         localStorage.setItem('pf_timer', JSON.stringify(this.timer));
     }
 
@@ -156,7 +155,7 @@ class StudyApp {
     }
 }
 
-// Inicialização segura após o carregamento do DOM
+// Inicializa quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new StudyApp();
 });
