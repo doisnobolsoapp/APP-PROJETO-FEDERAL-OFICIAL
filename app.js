@@ -1,84 +1,66 @@
 /**
  * Projeto Federal - Application Logic
- * RESTAURAÇÃO COMPLETA DA VERSÃO ORIGINAL
+ * Sincronizado com o build do Vite e Style.css
  */
 
 class StudyApp {
     constructor() {
-        console.log("Projeto Federal: Initializing App...");
-        
-        // Estado Original
+        // Inicialização de Dados com Fallback
         this.subjects = JSON.parse(localStorage.getItem('pf_subjects')) || [];
         this.history = JSON.parse(localStorage.getItem('pf_history')) || [];
-        this.mockExams = JSON.parse(localStorage.getItem('pf_mock_exams')) || [];
-        this.planning = JSON.parse(localStorage.getItem('pf_planning')) || null;
-        this.settings = JSON.parse(localStorage.getItem('pf_settings')) || {
-            autoRecalculatePlanning: false,
-            autoFollowPlanning: true
-        };
-        this.timer = JSON.parse(localStorage.getItem('pf_timer')) || {
-            seconds: 0,
-            running: false,
-            lastUpdate: null,
-            currentTaskIndex: null
-        };
+        this.timer = JSON.parse(localStorage.getItem('pf_timer')) || { seconds: 0, running: false };
         this.timerInterval = null;
-        this.parsedData = null;
-        this.currentMockDisciplines = [];
-        this.deferredPrompt = null;
 
         this.initElements();
         this.initEventListeners();
-        this.renderAll();
         
-        // Retoma o timer se estava ativo
-        if (this.timer.running) {
-            const now = Date.now();
-            const elapsed = Math.floor((now - this.timer.lastUpdate) / 1000);
-            this.timer.seconds += elapsed;
-            this.startTimer();
-        }
+        // Estado Inicial: Força a página de Dashboard
+        this.navigateTo('dashboard');
+        
+        // Recupera Timer se estivesse rodando
+        if (this.timer.running) this.startTimer();
     }
 
     initElements() {
-        // TODOS OS SEUS ELEMENTOS ORIGINAIS (IDs mantidos exatamente como no HTML)
-        this.sidebar = document.getElementById('sidebar');
-        this.sidebarOverlay = document.getElementById('sidebarOverlay');
-        this.toggleSidebarBtn = document.getElementById('toggleSidebar');
-        this.mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        // Elementos Estruturais (Críticos para o Layout no Style.css)
+        this.sidebar = document.querySelector('.sidebar');
+        this.sidebarOverlay = document.querySelector('.sidebar-overlay');
+        this.mainContent = document.querySelector('.main-content');
+        
+        // Botões de Controle (Devem existir no seu HTML)
+        this.toggleSidebarBtn = document.getElementById('toggleSidebar'); 
+        this.mobileMenuBtn = document.getElementById('mobileMenuBtn');   
+        
+        // Navegação
         this.navItems = document.querySelectorAll('.nav-item');
-        this.pageTitle = document.getElementById('pageTitle');
         this.pages = document.querySelectorAll('.page');
+        this.pageTitle = document.getElementById('pageTitle');
 
-        // Stats e Dashboard
-        this.totalStudyTimeEl = document.getElementById('totalStudyTime');
-        this.overallPerformanceEl = document.getElementById('overallPerformance');
-        this.overallProgressEl = document.getElementById('overallProgress');
-        this.subjectsGrid = document.getElementById('subjectsGrid');
-
-        // Timer Panel e Botões
+        // Timer e Modais
+        this.timerPanel = document.querySelector('.timer-panel');
+        this.toggleTimerBtn = document.getElementById('toggleTimerBtn');
         this.timerDisplay = document.getElementById('timerDisplay');
         this.startTimerBtn = document.getElementById('startTimerBtn');
         this.pauseTimerBtn = document.getElementById('pauseTimerBtn');
-        this.timerPanel = document.getElementById('timerPanel');
     }
 
     initEventListeners() {
-        // Lógica de Toggle da Sidebar (Essencial para o layout)
+        // 1. Sidebar Desktop (Toggle class .collapsed)
         if (this.toggleSidebarBtn) {
             this.toggleSidebarBtn.addEventListener('click', () => {
                 this.sidebar.classList.toggle('collapsed');
             });
         }
 
+        // 2. Sidebar Mobile (Toggle class .active)
         if (this.mobileMenuBtn) {
-            this.mobileMenuBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
+            this.mobileMenuBtn.addEventListener('click', () => {
                 this.sidebar.classList.add('active');
                 if (this.sidebarOverlay) this.sidebarOverlay.classList.add('active');
             });
         }
 
+        // 3. Fechar Sidebar Mobile (Overlay)
         if (this.sidebarOverlay) {
             this.sidebarOverlay.addEventListener('click', () => {
                 this.sidebar.classList.remove('active');
@@ -86,53 +68,73 @@ class StudyApp {
             });
         }
 
-        // Navegação Original
+        // 4. Navegação entre Páginas (Usa a classe .hidden do seu CSS)
         this.navItems.forEach(item => {
-            item.addEventListener('click', () => {
+            item.addEventListener('click', (e) => {
                 const pageId = item.getAttribute('data-page');
-                this.navigateTo(pageId);
-                if (window.innerWidth <= 768) {
-                    this.sidebar.classList.remove('active');
-                    if (this.sidebarOverlay) this.sidebarOverlay.classList.remove('active');
+                if (pageId) {
+                    this.navigateTo(pageId);
+                    
+                    // No mobile, fecha a sidebar ao selecionar
+                    if (window.innerWidth <= 768) {
+                        this.sidebar.classList.remove('active');
+                        if (this.sidebarOverlay) this.sidebarOverlay.classList.remove('active');
+                    }
                 }
             });
         });
 
-        // Eventos do Timer
+        // 5. Timer Panel (Abre/Fecha usando .active)
+        if (this.toggleTimerBtn) {
+            this.toggleTimerBtn.addEventListener('click', () => {
+                if (this.timerPanel) this.timerPanel.classList.toggle('active');
+            });
+        }
+
+        // 6. Controles do Cronômetro
         if (this.startTimerBtn) this.startTimerBtn.addEventListener('click', () => this.startTimer());
         if (this.pauseTimerBtn) this.pauseTimerBtn.addEventListener('click', () => this.pauseTimer());
     }
 
     navigateTo(pageId) {
-        this.pages.forEach(page => page.classList.remove('active'));
-        this.navItems.forEach(item => item.classList.remove('active'));
+        // Gerencia visibilidade das páginas usando .hidden do style.css
+        this.pages.forEach(page => {
+            if (page.id === `${pageId}-page`) {
+                page.classList.remove('hidden');
+            } else {
+                page.classList.add('hidden');
+            }
+        });
 
-        const targetPage = document.getElementById(`${pageId}-page`);
-        const targetNav = document.querySelector(`.nav-item[data-page="${pageId}"]`);
+        // Gerencia estado visual dos botões na sidebar
+        this.navItems.forEach(nav => {
+            if (nav.getAttribute('data-page') === pageId) {
+                nav.classList.add('active');
+                if (this.pageTitle) {
+                    const span = nav.querySelector('span');
+                    this.pageTitle.textContent = span ? span.textContent : pageId;
+                }
+            } else {
+                nav.classList.remove('active');
+            }
+        });
 
-        if (targetPage) targetPage.classList.add('active');
-        if (targetNav) {
-            targetNav.classList.add('active');
-            if (this.pageTitle) this.pageTitle.textContent = targetNav.querySelector('span').textContent;
-        }
         window.scrollTo(0, 0);
     }
 
-    // --- MÉTODOS DE APOIO (Cópia fiel do seu original) ---
-
+    // --- Funcionalidades do Timer ---
     startTimer() {
         if (this.timerInterval) clearInterval(this.timerInterval);
         this.timer.running = true;
-        this.timer.lastUpdate = Date.now();
         
+        // UI: Troca botões usando display ou hidden
         if (this.startTimerBtn) this.startTimerBtn.style.display = 'none';
         if (this.pauseTimerBtn) this.pauseTimerBtn.style.display = 'flex';
 
         this.timerInterval = setInterval(() => {
             this.timer.seconds++;
-            this.timer.lastUpdate = Date.now();
             this.updateTimerDisplay();
-            this.saveTimer();
+            localStorage.setItem('pf_timer', JSON.stringify(this.timer));
         }, 1000);
     }
 
@@ -141,7 +143,7 @@ class StudyApp {
         clearInterval(this.timerInterval);
         if (this.startTimerBtn) this.startTimerBtn.style.display = 'flex';
         if (this.pauseTimerBtn) this.pauseTimerBtn.style.display = 'none';
-        this.saveTimer();
+        localStorage.setItem('pf_timer', JSON.stringify(this.timer));
     }
 
     updateTimerDisplay() {
@@ -149,24 +151,12 @@ class StudyApp {
         const h = Math.floor(this.timer.seconds / 3600);
         const m = Math.floor((this.timer.seconds % 3600) / 60);
         const s = this.timer.seconds % 60;
-        this.timerDisplay.textContent = [h, m, s].map(v => v.toString().padStart(2, '0')).join(':');
-    }
-
-    saveTimer() { localStorage.setItem('pf_timer', JSON.stringify(this.timer)); }
-
-    renderAll() {
-        this.renderStats();
-        this.updateTimerDisplay();
-        // Se você tinha outras funções de renderização, elas voltam aqui.
-    }
-
-    renderStats() {
-        if (!this.totalStudyTimeEl) return;
-        const totalMinutes = this.history.reduce((acc, curr) => acc + (curr.minutes || 0), 0);
-        const h = Math.floor(totalMinutes / 60);
-        const m = totalMinutes % 60;
-        this.totalStudyTimeEl.textContent = `${h}h ${m.toString().padStart(2, '0')}m`;
+        this.timerDisplay.textContent = 
+            `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => { window.app = new StudyApp(); });
+// Inicialização segura após o carregamento do DOM
+document.addEventListener('DOMContentLoaded', () => {
+    window.app = new StudyApp();
+});
