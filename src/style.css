@@ -1,271 +1,161 @@
-/* * Projeto Federal - Style Sheet (Otimizado)
+/**
+ * Projeto Federal - Application Logic 
+ * Sincronizado com Style.css (Otimizado)
  */
 
-:root {
-    scroll-behavior: smooth;
-    /* Colors */
-    --primary: #001F3F;
-    --primary-dark: #00152b;
-    --primary-light: #e6e9ec;
-    --sidebar-gradient: linear-gradient(180deg, #001F3F 0%, #00152b 100%);
-    
-    --bg-body: #F4F7F9;
-    --bg-card: #ffffff;
-    --border: #e0e6ed;
-    
-    --text-main: #333333;
-    --text-muted: #777777;
-    --text-white: #ffffff;
-    
-    --blue: #3498db;
-    --green: #2ecc71;
-    --purple: #9b59b6;
-    --red: #e74c3c;
-    --orange: #f39c12;
+class StudyApp {
+    constructor() {
+        // Inicialização de Dados (LocalStorage)
+        this.subjects = JSON.parse(localStorage.getItem('pf_subjects')) || [];
+        this.history = JSON.parse(localStorage.getItem('pf_history')) || [];
+        this.timer = JSON.parse(localStorage.getItem('pf_timer')) || { seconds: 0, running: false };
+        this.timerInterval = null;
 
-    /* Spacing & Borders */
-    --sidebar-width: 260px;
-    --sidebar-collapsed: 80px;
-    --radius: 12px;
-    --shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    --font-mono: 'Courier New', monospace;
-}
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background-color: var(--bg-body);
-    color: var(--text-main);
-    line-height: 1.6;
-    overflow-x: hidden;
-}
-
-/* Layout Structure */
-.app-container {
-    display: flex;
-    min-height: 100vh;
-}
-
-/* Sidebar Styling */
-.sidebar {
-    width: var(--sidebar-width);
-    background: var(--sidebar-gradient);
-    color: var(--text-white);
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    z-index: 2000;
-    transition: var(--transition);
-    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.sidebar.collapsed {
-    width: var(--sidebar-collapsed);
-}
-
-/* Ajuste para esconder textos quando colapsado */
-.sidebar.collapsed .logo span,
-.sidebar.collapsed .nav-item span,
-.sidebar.collapsed .sidebar-footer p,
-.sidebar.collapsed .plan-name {
-    display: none !important;
-}
-
-.sidebar-header {
-    padding: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.logo {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-size: 1.1rem;
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-.sidebar-nav {
-    flex: 1;
-    padding: 1rem 0.75rem;
-    overflow-y: auto;
-}
-
-.nav-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 0.8rem 1.2rem;
-    margin-bottom: 0.4rem;
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: var(--transition);
-    opacity: 0.8;
-    color: var(--text-white);
-    text-decoration: none;
-}
-
-.nav-item:hover, .nav-item.active {
-    background: rgba(255, 255, 255, 0.15);
-    opacity: 1;
-}
-
-/* Main Content */
-.main-content {
-    flex: 1;
-    margin-left: var(--sidebar-width);
-    transition: var(--transition);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-.sidebar.collapsed + .main-content {
-    margin-left: var(--sidebar-collapsed);
-}
-
-/* Navbar */
-.top-navbar {
-    height: 70px;
-    background-color: var(--bg-card);
-    border-bottom: 1px solid var(--border);
-    padding: 0 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
-
-/* Content Wrapper */
-.content-wrapper {
-    padding: 2rem;
-    width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
-}
-
-/* Grid System */
-.dashboard-top {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-}
-
-.card {
-    background: var(--bg-card);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
-}
-
-/* Floating Timer */
-.floating-timer {
-    position: fixed;
-    bottom: 25px;
-    right: 25px;
-    z-index: 2500;
-}
-
-.timer-panel {
-    position: absolute;
-    bottom: 75px;
-    right: 0;
-    width: 280px;
-    background: white;
-    border-radius: var(--radius);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    padding: 1.5rem;
-    display: none;
-    border: 1px solid var(--border);
-}
-
-.timer-panel.active {
-    display: flex;
-    flex-direction: column;
-}
-
-/* Tables Responsive */
-.table-responsive {
-    width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-/* Mobile Adjustments */
-@media (max-width: 768px) {
-    .sidebar {
-        left: -100%;
-        width: 280px;
+        this.initElements();
+        this.initEventListeners();
+        
+        // Estado Inicial: Abre na Dashboard
+        this.navigateTo('dashboard');
+        
+        if (this.timer.running) this.startTimer();
     }
 
-    .sidebar.active {
-        left: 0;
+    initElements() {
+        // Elementos Estruturais (Conforme seu Style.css)
+        this.sidebar = document.querySelector('.sidebar');
+        this.sidebarOverlay = document.querySelector('.sidebar-overlay');
+        this.mainContent = document.querySelector('.main-content');
+        
+        // Botões de Controle
+        this.toggleSidebarBtn = document.getElementById('toggleSidebar'); // Desktop
+        this.mobileMenuBtn = document.getElementById('mobileMenuBtn');   // Mobile
+        
+        // Navegação
+        this.navItems = document.querySelectorAll('.nav-item');
+        this.pages = document.querySelectorAll('.page');
+        this.pageTitle = document.getElementById('pageTitle');
+
+        // Timer (Floating Timer no seu CSS)
+        this.timerPanel = document.querySelector('.timer-panel');
+        this.toggleTimerBtn = document.getElementById('toggleTimerBtn');
+        this.timerDisplay = document.getElementById('timerDisplay');
+        this.startTimerBtn = document.getElementById('startTimerBtn');
+        this.pauseTimerBtn = document.getElementById('pauseTimerBtn');
     }
 
-    .main-content {
-        margin-left: 0 !important;
+    initEventListeners() {
+        // 1. Sidebar Desktop (Toggle class .collapsed)
+        if (this.toggleSidebarBtn) {
+            this.toggleSidebarBtn.addEventListener('click', () => {
+                this.sidebar.classList.toggle('collapsed');
+            });
+        }
+
+        // 2. Sidebar Mobile (Toggle class .active)
+        if (this.mobileMenuBtn) {
+            this.mobileMenuBtn.addEventListener('click', () => {
+                this.sidebar.classList.add('active');
+                if (this.sidebarOverlay) this.sidebarOverlay.classList.add('active');
+            });
+        }
+
+        // 3. Fechar Sidebar Mobile (Overlay)
+        if (this.sidebarOverlay) {
+            this.sidebarOverlay.addEventListener('click', () => {
+                this.sidebar.classList.remove('active');
+                this.sidebarOverlay.classList.remove('active');
+            });
+        }
+
+        // 4. Navegação entre Páginas
+        this.navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                const pageId = item.getAttribute('data-page');
+                if (pageId) {
+                    this.navigateTo(pageId);
+                    
+                    // Fecha sidebar se estiver no mobile
+                    if (window.innerWidth <= 768) {
+                        this.sidebar.classList.remove('active');
+                        if (this.sidebarOverlay) this.sidebarOverlay.classList.remove('active');
+                    }
+                }
+            });
+        });
+
+        // 5. Floating Timer Panel (Toggle class .active do CSS)
+        if (this.toggleTimerBtn) {
+            this.toggleTimerBtn.addEventListener('click', () => {
+                this.timerPanel.classList.toggle('active');
+            });
+        }
+
+        // 6. Timer Controls
+        if (this.startTimerBtn) this.startTimerBtn.addEventListener('click', () => this.startTimer());
+        if (this.pauseTimerBtn) this.pauseTimerBtn.addEventListener('click', () => this.pauseTimer());
     }
 
-    .top-navbar {
-        padding: 0 1rem;
+    navigateTo(pageId) {
+        // Usa a classe .hidden que você definiu no CSS
+        this.pages.forEach(page => {
+            if (page.id === `${pageId}-page`) {
+                page.classList.remove('hidden');
+            } else {
+                page.classList.add('hidden');
+            }
+        });
+
+        // Atualiza estado visual da Sidebar
+        this.navItems.forEach(nav => {
+            if (nav.getAttribute('data-page') === pageId) {
+                nav.classList.add('active');
+                if (this.pageTitle) {
+                    const span = nav.querySelector('span');
+                    this.pageTitle.textContent = span ? span.textContent : pageId;
+                }
+            } else {
+                nav.classList.remove('active');
+            }
+        });
+
+        window.scrollTo(0, 0);
     }
 
-    .mobile-only {
-        display: block;
+    // --- Lógica do Timer ---
+    startTimer() {
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        this.timer.running = true;
+        
+        if (this.startTimerBtn) this.startTimerBtn.classList.add('hidden');
+        if (this.pauseTimerBtn) this.pauseTimerBtn.classList.remove('hidden');
+
+        this.timerInterval = setInterval(() => {
+            this.timer.seconds++;
+            this.updateTimerDisplay();
+            localStorage.setItem('pf_timer', JSON.stringify(this.timer));
+        }, 1000);
+    }
+
+    pauseTimer() {
+        this.timer.running = false;
+        clearInterval(this.timerInterval);
+        if (this.startTimerBtn) this.startTimerBtn.classList.remove('hidden');
+        if (this.pauseTimerBtn) this.pauseTimerBtn.classList.add('hidden');
+        localStorage.setItem('pf_timer', JSON.stringify(this.timer));
+    }
+
+    updateTimerDisplay() {
+        if (!this.timerDisplay) return;
+        const h = Math.floor(this.timer.seconds / 3600);
+        const m = Math.floor((this.timer.seconds % 3600) / 60);
+        const s = this.timer.seconds % 60;
+        this.timerDisplay.textContent = 
+            `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     }
 }
 
-/* Overlay */
-.sidebar-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1500;
-    opacity: 0;
-    visibility: hidden;
-    transition: var(--transition);
-    backdrop-filter: blur(2px);
-}
-
-.sidebar-overlay.active {
-    opacity: 1;
-    visibility: visible;
-}
-
-/* Forms & Buttons */
-.btn {
-    padding: 0.6rem 1.2rem;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    transition: var(--transition);
-}
-
-.btn-primary {
-    background: var(--primary);
-    color: white;
-}
-
-.btn-primary:hover {
-    background: var(--primary-dark);
-}
-
-/* Utilitários */
-.hidden { display: none !important; }
-.text-center { text-align: center; }
+// Inicialização
+document.addEventListener('DOMContentLoaded', () => {
+    window.app = new StudyApp();
+});
