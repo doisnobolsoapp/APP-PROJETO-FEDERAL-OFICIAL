@@ -1,6 +1,6 @@
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 
-export default async function handler(req: any, res: any) {
+export default async function handler(req, res) {
   // 1. Só aceita POST
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Método não permitido" });
@@ -16,9 +16,10 @@ export default async function handler(req: any, res: any) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
 
-    // PLANO B: Usando 'gemini-pro' para máxima compatibilidade com a API estável
+    // Atualizado para gemini-1.5-flash: mais rápido e eficiente para extração de texto
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-pro", 
+      model: "gemini-1.5-flash",
+      generationConfig: { responseMimeType: "application/json" },
       safetySettings: [
         { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
         { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
@@ -28,17 +29,16 @@ export default async function handler(req: any, res: any) {
     });
 
     const prompt = `
-      Você é um especialista em análise de editais para concursos policiais brasileiros.
+      Você é um especialista em análise de editais para concursos policiais brasileiros (foco em Policial Legislativo).
       Transforme o texto fornecido em um JSON estruturado para estudo verticalizado.
-      Retorne APENAS o código JSON puro, sem explicações.
 
       ESTRUTURA DESEJADA:
       {
         "metadados": {
-          "cargo": "${metadata?.cargo || "Não informado"}",
-          "orgao": "${metadata?.orgao || "Não informado"}",
-          "banca": "${metadata?.banca || "Não informado"}",
-          "data_prova": "${metadata?.data_prova || "Pré-Edital"}"
+          "cargo": "${metadata?.cargo || "Policial Legislativo"}",
+          "orgao": "${metadata?.orgao || "Câmara dos Deputados"}",
+          "banca": "${metadata?.banca || "FGV"}",
+          "data_prova": "${metadata?.data_prova || "26/04/2026"}"
         },
         "dashboard": [
           { "disciplina": "NOME DA MATÉRIA", "total_topicos": 0 }
@@ -47,7 +47,7 @@ export default async function handler(req: any, res: any) {
           {
             "disciplina": "NOME DA MATÉRIA",
             "topicos": [
-              { "id": "1", "descricao": "TÓPICO DO EDITAL" }
+              { "id": "1.1", "descricao": "TÓPICO DETALHADO" }
             ]
           }
         ]
@@ -62,15 +62,11 @@ export default async function handler(req: any, res: any) {
     const response = await result.response;
     const jsonString = response.text();
 
-    // 3. Limpeza rigorosa para garantir que seja um JSON válido
-    const cleanJson = jsonString
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
+    // 3. Parse e Retorno
+    // Nota: gemini-1.5-flash com responseMimeType já entrega o JSON limpo
+    return res.status(200).json(JSON.parse(jsonString));
 
-    return res.status(200).json(JSON.parse(cleanJson));
-
-  } catch (error: any) {
+  } catch (error) {
     console.error("ERRO NO SERVIDOR:", error);
     return res.status(500).json({ 
       error: "Falha ao processar edital", 
