@@ -12,9 +12,8 @@
     <meta name="apple-mobile-web-app-title" content="Projeto Federal">
     <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=PF&background=001f3f&color=fff&size=192">
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    </head>
+    <link rel="stylesheet" href="style.css"> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
 <body>
     <div class="app-container">
         <div class="sidebar-overlay" id="sidebarOverlay"></div>
@@ -30,42 +29,33 @@
                 </button>
             </div>
             <nav class="sidebar-nav">
-                <ul>
-                    <li class="nav-item active" data-page="dashboard">
-                        <i class="fas fa-th-large"></i>
-                        <span>Dashboard</span>
-                    </li>
-                    <li class="nav-item" data-page="parser">
-                        <i class="fas fa-wand-magic-sparkles"></i>
-                        <span>Importar Edital</span>
-                    </li>
-                    <li class="nav-item" data-page="plans">
-                        <i class="fas fa-folder-open"></i>
-                        <span>Planos</span>
-                    </li>
-                    <li class="nav-item" data-page="subjects">
-                        <i class="fas fa-book"></i>
-                        <span>Disciplinas</span>
-                    </li>
-                    <li class="nav-item" data-page="announcement">
-                        <i class="fas fa-file-contract"></i>
-                        <span>Edital</span>
-                    </li>
-                    <li class="nav-item" data-page="stats">
-                        <i class="fas fa-chart-pie"></i>
-                        <span>Estatísticas</span>
-                    </li>
-                    <li class="nav-item" data-page="mock-exams">
-                        <i class="fas fa-list-check"></i>
-                        <span>Simulados</span>
-                    </li>
-                    <li class="nav-item" data-page="planning">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>Planejamento</span>
-                    </li>
-                </ul>
-                <div class="install-container" id="installContainer" style="display: none; padding: 1rem;">
-                    <button class="btn btn-primary w-full" id="installBtn">
+                <div class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-th-large"></i>
+                    <span>Dashboard</span>
+                </div>
+                <div class="nav-item" data-page="parser">
+                    <i class="fas fa-wand-magic-sparkles"></i>
+                    <span>Importar Edital</span>
+                </div>
+                <div class="nav-item" data-page="plans">
+                    <i class="fas fa-folder-open"></i>
+                    <span>Planos</span>
+                </div>
+                <div class="nav-item" data-page="subjects">
+                    <i class="fas fa-book"></i>
+                    <span>Disciplinas</span>
+                </div>
+                <div class="nav-item" data-page="mock-exams">
+                    <i class="fas fa-list-check"></i>
+                    <span>Simulados</span>
+                </div>
+                <div class="nav-item" data-page="planning">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Planejamento</span>
+                </div>
+
+                <div class="install-container" id="installContainer" style="display: none; padding: 1rem; margin-top: auto;">
+                    <button class="btn btn-primary" id="installBtn" style="width: 100%;">
                         <i class="fas fa-download"></i> Instalar App
                     </button>
                 </div>
@@ -78,7 +68,7 @@
         <main class="main-content">
             <header class="top-navbar">
                 <div class="nav-left">
-                    <button id="mobileMenuBtn" class="mobile-only">
+                    <button id="mobileMenuBtn" class="mobile-only btn-icon">
                         <i class="fas fa-bars"></i>
                     </button>
                     <h1 id="pageTitle">Dashboard</h1>
@@ -86,12 +76,12 @@
                 <div class="nav-right">
                     <button class="btn btn-primary" id="addStudyBtn">
                         <i class="fas fa-plus"></i>
-                        <span>Adicionar Estudo</span>
+                        <span class="desktop-only">Adicionar Estudo</span>
                     </button>
                     <div class="user-status">
-                        <span class="plan-name">[Pós-Edital] Policial Federal</span>
+                        <span class="plan-name desktop-only">CB WILL</span>
                         <div class="user-avatar">
-                            <img src="https://ui-avatars.com/api/?name=PF&background=2DCDAA&color=fff" alt="User">
+                            <img src="https://ui-avatars.com/api/?name=Will&background=001f3f&color=fff" alt="User">
                         </div>
                     </div>
                 </div>
@@ -126,32 +116,11 @@
                     <section class="subjects-section">
                         <div class="section-header">
                             <h2>Minhas Disciplinas</h2>
-                            <button class="btn btn-outline btn-sm" id="newSubjectBtn">
-                                <i class="fas fa-plus"></i> Nova Disciplina
-                            </button>
                         </div>
                         <div class="subjects-grid" id="subjectsGrid">
                             <div class="empty-state">
                                 <i class="fas fa-book-open"></i>
-                                <p>Nenhuma disciplina cadastrada ainda.</p>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class="bottom-grid">
-                        <div class="card info-card">
-                            <div class="card-header"><h3><i class="fas fa-bell"></i> Lembretes</h3></div>
-                            <div class="card-body" id="remindersList">
-                                <div class="reminder-item">
-                                    <span class="dot"></span>
-                                    <p>Foco na missão: Prova dia 26/04</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card info-card">
-                            <div class="card-header"><h3><i class="fas fa-history"></i> Últimas Atividades</h3></div>
-                            <div class="card-body" id="recentActivities">
-                                <div class="empty-state-sm">Sem atividades recentes.</div>
+                                <p>Carregando disciplinas...</p>
                             </div>
                         </div>
                     </section>
@@ -159,83 +128,54 @@
 
                 <div id="parser-page" class="page">
                     <div class="section-header">
-                        <h2>Gerenciador de Inteligência de Dados</h2>
-                        <p>Transforme o texto do edital em um plano de estudos estruturado.</p>
-                    </div>
-                    <div class="card parser-card">
-                        <div class="card-body">
-                            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                                <input type="text" id="cargoName" placeholder="Cargo (Ex: Policial Legislativo)">
-                                <input type="text" id="orgaoName" placeholder="Órgão (Ex: Câmara)">
-                                <input type="text" id="bancaName" placeholder="Banca (Ex: FGV)">
-                                <input type="date" id="provaDate">
-                            </div>
-                            <div class="form-group">
-                                <label for="editalText">Conteúdo Programático (Texto Bruto)</label>
-                                <textarea id="editalText" rows="10" placeholder="Cole aqui o conteúdo programático do edital..."></textarea>
-                            </div>
-                            <button class="btn btn-primary btn-block" id="startParsingBtn">
-                                <i class="fas fa-bolt"></i> Processar com IA
-                            </button>
-                        </div>
-                    </div>
-                    <div id="parserResult" class="parser-result hidden">
-                        <div class="card">
-                            <div class="card-header"><h3>Resultado do Processamento</h3></div>
-                            <div class="card-body">
-                                <pre id="jsonOutput" class="json-viewer"></pre>
-                                <div class="action-buttons">
-                                    <button class="btn btn-success" id="importParsedDataBtn">
-                                        <i class="fas fa-check"></i> Importar para o App
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="planning-page" class="page">
-                    <div class="section-header">
-                        <h2>Ciclo de Estudos Inteligente</h2>
-                        <button class="btn btn-primary" id="generatePlanningBtn">
-                            <i class="fas fa-magic"></i> Gerar Novo Ciclo
-                        </button>
-                    </div>
-                    <div id="planningContainer"></div>
-                </div>
-
-                <div id="mock-exams-page" class="page">
-                    <div class="section-header">
-                        <h2>Meus Simulados</h2>
-                        <button class="btn btn-primary" id="addMockBtn">
-                            <i class="fas fa-plus"></i> Novo Simulado
-                        </button>
+                        <h2>Importar Edital</h2>
                     </div>
                     <div class="card">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Data</th>
-                                    <th>Banca</th>
-                                    <th>Desempenho</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody id="mockExamsTableBody"></tbody>
-                        </table>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label>Texto do Edital</label>
+                                <textarea id="editalText" rows="10" class="form-control" placeholder="Cole o conteúdo programático aqui..."></textarea>
+                            </div>
+                            <button class="btn btn-primary btn-block" id="startParsingBtn">Processar Edital</button>
+                        </div>
                     </div>
                 </div>
-            </div>
+
+                </div>
         </main>
     </div>
 
     <div class="modal-overlay" id="modalOverlay"></div>
-    <div id="toast" class="toast"><div class="toast-content"><span id="toastMessage"></span></div></div>
-
-    <div id="floatingTimer" class="floating-timer">
-        <button id="toggleTimerBtn" class="floating-timer-btn"><i class="fas fa-stopwatch"></i></button>
+    
+    <div id="studyModal" class="modal hidden">
+        <div class="modal-header">
+            <h3>Registrar Estudo</h3>
+            <button class="close-modal">&times;</button>
+        </div>
+        <div class="modal-body">
+            </div>
     </div>
 
-    <script type="module" src="/app.js"></script>
+    <div id="toast" class="toast">
+        <div class="toast-content">
+            <span id="toastMessage"></span>
+        </div>
+    </div>
+
+    <div id="floatingTimer" class="floating-timer">
+        <div class="timer-panel" id="timerPanel">
+            <div class="timer-display" id="timerDisplay">00:00:00</div>
+            <div class="timer-controls">
+                <button class="btn-timer start" id="startTimerBtn"><i class="fas fa-play"></i></button>
+                <button class="btn-timer pause hidden" id="pauseTimerBtn"><i class="fas fa-pause"></i></button>
+                <button class="btn-timer reset" id="resetTimerBtn"><i class="fas fa-redo"></i></button>
+            </div>
+        </div>
+        <button id="toggleTimerBtn" class="floating-timer-btn">
+            <i class="fas fa-stopwatch"></i>
+        </button>
+    </div>
+
+    <script type="module" src="app.js"></script>
 </body>
 </html>
