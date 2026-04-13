@@ -96,7 +96,7 @@ class StudyApp {
 
                 const data = await response.json();
 
-                if (data.subjects) {
+                if (data && data.subjects && Array.isArray(data.subjects)) {
                     this.subjects = data.subjects;
                     localStorage.setItem('pf_subjects', JSON.stringify(this.subjects));
                     this.showToast('Edital processado com sucesso!');
