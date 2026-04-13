@@ -9,20 +9,58 @@
     <meta name="mobile-web-app-capable" content="yes">
 
     <link rel="manifest" href="/manifest.json">
-    <link rel="icon" href="/favicon.ico">
 
+    <!-- ✅ FAVICON TEMPORÁRIO -->
+    <link rel="icon" href="https://ui-avatars.com/api/?name=PF&background=001f3f&color=fff">
+
+    <!-- ÍCONES -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
 
 <div id="app">
-    <h1 style="text-align:center; margin-top:50px;">
-        🚀 Projeto Federal carregando...
-    </h1>
+
+    <div class="app-container">
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <span>Projeto Federal</span>
+            </div>
+
+            <nav>
+                <div class="nav-item active" data-page="dashboard">Dashboard</div>
+                <div class="nav-item" data-page="parser">Importar Edital</div>
+            </nav>
+        </aside>
+
+        <!-- CONTEÚDO -->
+        <main class="main-content">
+
+            <h1 id="pageTitle">Dashboard</h1>
+
+            <!-- DASHBOARD -->
+            <div id="dashboard-page" class="page">
+                <p>Bem-vindo ao sistema 🚀</p>
+            </div>
+
+            <!-- PARSER -->
+            <div id="parser-page" class="page hidden">
+                <textarea id="editalText" placeholder="Cole o edital aqui" style="width:100%; height:150px;"></textarea>
+                <button id="startParsingBtn">Processar Edital</button>
+
+                <!-- RESULTADO -->
+                <pre id="jsonOutput"></pre>
+            </div>
+
+        </main>
+
+    </div>
+
 </div>
 
-<!-- ✅ IMPORTANTE -->
+<!-- SCRIPT -->
 <script type="module" src="/src/main.js"></script>
 
 </body>
