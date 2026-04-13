@@ -6,7 +6,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 🔥 Corrige problema comum do Vercel (body como string)
+    // 🔥 Corrige bug do Vercel (body como string)
     const body =
       typeof req.body === "string" ? JSON.parse(req.body) : req.body;
 
@@ -27,12 +27,12 @@ export default async function handler(req, res) {
 
     const genAI = new GoogleGenerativeAI(apiKey);
 
-    // ✅ MODELO FUNCIONAL (SEM -latest)
+    // ✅ MODELO ATUAL (FUNCIONA EM 2026)
     const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash-002"
+      model: "gemini-2.0-flash"
     });
 
-    console.log("🔥 MODEL USADO: gemini-1.5-flash-002");
+    console.log("🔥 MODEL USADO: gemini-2.0-flash");
 
     const prompt = `
 Você é um especialista em análise de editais de concursos públicos.
@@ -63,13 +63,13 @@ ${text}
 - Não explique nada
 `;
 
-    // 🔥 Chamada segura
+    // 🔥 CHAMADA DA IA
     const result = await model.generateContent(prompt);
     const response = await result.response;
 
     let raw = response.text();
 
-    // 🔥 LIMPEZA FUNDAMENTAL
+    // 🔥 LIMPEZA CRÍTICA (evita erro do Gemini)
     raw = raw
       .replace(/```json/g, "")
       .replace(/```/g, "")
