@@ -2,21 +2,34 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+
+    <!-- ✅ VIEWPORT CORRETO -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Projeto Federal | Inteligência em Concursos</title>
 
+    <!-- PWA -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#001f3f">
 
-    <!-- REMOVIDO CSS DIRETO -->
+    <!-- ✅ CORREÇÃO DEPRECATED -->
+    <meta name="mobile-web-app-capable" content="yes">
 
+    <!-- ICON -->
+    <link rel="icon" href="/favicon.ico" />
+
+    <!-- ICON APP -->
+    <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=PF&background=001f3f&color=fff&size=192">
+
+    <!-- FONT AWESOME -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
 </head>
+
 <body>
+    <div id="app"></div>
 
-    <!-- TODO SEU HTML CONTINUA IGUAL -->
-
-    <!-- SCRIPT PRINCIPAL -->
-    <script type="module" src="/src/main.js"></script>
+    <!-- ✅ SCRIPT CORRETO (VITE) -->
+    <script type="module" src="/src/app.js"></script>
 </body>
 </html>
