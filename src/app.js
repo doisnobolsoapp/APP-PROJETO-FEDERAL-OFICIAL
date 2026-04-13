@@ -1,3 +1,4 @@
+import './style.css';
 /**
  * Projeto Federal - Application Logic
  * Versão Final: Sincronizada com Vite, Style.css e Vercel API
