@@ -8,14 +8,19 @@
   <meta name="theme-color" content="#001f3f" />
   <meta name="mobile-web-app-capable" content="yes" />
 
+  <!-- ✅ Manifest -->
   <link rel="manifest" href="/manifest.json" />
 
+  <!-- ✅ Favicon (corrige erro 404) -->
+  <link rel="icon" href="https://ui-avatars.com/api/?name=PF&background=001f3f&color=fff">
+
+  <!-- Ícones -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 </head>
 
 <body>
 
-<!-- 🔥 ESSA DIV É OBRIGATÓRIA -->
+<!-- 🔥 ROOT DO APP (OBRIGATÓRIO) -->
 <div id="app">
 
   <div class="app-container">
@@ -34,20 +39,22 @@
       <h1 id="pageTitle">Dashboard</h1>
 
       <!-- DASHBOARD -->
-      <div id="dashboard-page" class="page">
+      <div id="dashboard-page" class="page active">
         <p>Bem-vindo ao sistema 🚀</p>
       </div>
 
       <!-- PARSER -->
       <div id="parser-page" class="page hidden">
 
-        <textarea id="editalText" placeholder="Cole o edital aqui"></textarea>
+        <textarea id="editalText" placeholder="Cole o edital aqui" style="width:100%; height:150px;"></textarea>
+
+        <br><br>
 
         <button id="startParsingBtn">
           Processar Edital com IA
         </button>
 
-        <pre id="jsonOutput"></pre>
+        <pre id="jsonOutput" style="margin-top:20px;"></pre>
 
       </div>
 
@@ -57,7 +64,7 @@
 
 </div>
 
-<!-- SCRIPT -->
+<!-- ✅ SCRIPT PRINCIPAL -->
 <script type="module" src="/src/main.js"></script>
 
 </body>
