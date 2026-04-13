@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default async function handler(req, res) {
     if (req.method !== "POST") {
@@ -6,33 +6,67 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { text, metadata } = req.body;
+        const { text } = req.body;
+
+        if (!text) {
+            return res.status(400).json({ error: "Texto obrigatório" });
+        }
+
         const apiKey = process.env.GEMINI_API_KEY;
 
         if (!apiKey) {
-            return res.status(500).json({ error: "Chave API não configurada na Vercel." });
+            return res.status(500).json({ error: "API Key não configurada" });
         }
 
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ 
-            model: "gemini-1.5-flash",
-            generationConfig: { responseMimeType: "application/json" },
-            safetySettings: [
-                { category: HarmCategory.HARM_CATEGORY_HARASSMENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-                { category: HarmCategory.HARM_CATEGORY_HATE_SPEECH, threshold: HarmBlockThreshold.BLOCK_NONE },
-                { category: HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT, threshold: HarmBlockThreshold.BLOCK_NONE },
-                { category: HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT, threshold: HarmBlockThreshold.BLOCK_NONE },
-            ],
+
+        // ✅ MODELO CORRETO
+        const model = genAI.getGenerativeModel({
+            model: "gemini-1.5-flash-latest",
         });
 
-        const prompt = `Analise o edital e retorne um JSON estruturado:
-        ${text}
-        Metadados: ${JSON.stringify(metadata)}`;
+        const prompt = `
+Extraia disciplinas e tópicos do edital abaixo.
+
+TEXTO:
+${text}
+
+FORMATO OBRIGATÓRIO:
+{
+  "subjects": [
+    {
+      "name": "string",
+      "topics": ["string"]
+    }
+  ]
+}
+
+REGRAS:
+- Retorne apenas JSON
+- Sem explicações
+`;
 
         const result = await model.generateContent(prompt);
         const response = await result.response;
-        return res.status(200).json(JSON.parse(response.text()));
+
+        let raw = response.text();
+
+        // 🔥 LIMPEZA (ESSENCIAL)
+        raw = raw
+            .replace(/```json/g, "")
+            .replace(/```/g, "")
+            .trim();
+
+        const data = JSON.parse(raw);
+
+        return res.status(200).json(data);
+
     } catch (error) {
-        return res.status(500).json({ error: "Erro no Parser", details: error.message });
+        console.error("Erro:", error);
+
+        return res.status(500).json({
+            error: "Erro no parser",
+            details: error.message
+        });
     }
 }
