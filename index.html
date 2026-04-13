@@ -15,43 +15,49 @@
 
 <body>
 
-<div class="app-container">
+<!-- ✅ ESSENCIAL PARA O MAIN.JS -->
+<div id="app">
 
-  <!-- SIDEBAR -->
-  <aside id="sidebar">
-    <h2>Projeto Federal</h2>
+  <div class="app-container">
 
-    <div class="nav-item" data-page="dashboard">Dashboard</div>
-    <div class="nav-item" data-page="parser">Importar Edital</div>
-  </aside>
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+      <h2>Projeto Federal</h2>
 
-  <!-- CONTEÚDO -->
-  <main>
+      <div class="nav-item" data-page="dashboard">Dashboard</div>
+      <div class="nav-item" data-page="parser">Importar Edital</div>
+    </aside>
 
-    <h1 id="pageTitle">Dashboard</h1>
+    <!-- CONTEÚDO -->
+    <main>
 
-    <!-- DASHBOARD -->
-    <div id="dashboard-page" class="page">
-      <p>Bem-vindo ao sistema 🚀</p>
-    </div>
+      <h1 id="pageTitle">Dashboard</h1>
 
-    <!-- PARSER -->
-    <div id="parser-page" class="page hidden">
+      <!-- DASHBOARD -->
+      <div id="dashboard-page" class="page">
+        <p>Bem-vindo ao sistema 🚀</p>
+      </div>
 
-      <textarea id="editalText" placeholder="Cole o edital aqui"></textarea>
+      <!-- PARSER -->
+      <div id="parser-page" class="page hidden">
 
-      <button id="startParsingBtn">
-        Processar Edital com IA
-      </button>
+        <textarea id="editalText" placeholder="Cole o edital aqui"></textarea>
 
-      <pre id="jsonOutput"></pre>
+        <button id="startParsingBtn">
+          Processar Edital com IA
+        </button>
 
-    </div>
+        <pre id="jsonOutput"></pre>
 
-  </main>
+      </div>
+
+    </main>
+
+  </div>
 
 </div>
 
+<!-- ✅ IMPORTANTE: VITE -->
 <script type="module" src="/src/main.js"></script>
 
 </body>
