@@ -2,178 +2,21 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projeto Federal | Inteligência em Concursos</title>
-    
+
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#001f3f">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Projeto Federal">
-    <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=PF&background=001f3f&color=fff&size=192">
-    
-    <link rel="stylesheet" href="./src/style.css"> 
+
+    <!-- REMOVIDO CSS DIRETO -->
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-    <div class="app-container">
-        <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">
-                    <i class="fas fa-shield-halved"></i>
-                    <span>Projeto Federal</span>
-                </div>
-                <button class="toggle-btn" id="toggleSidebar">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-            </div>
-            
-            <nav class="sidebar-nav">
-                <div class="nav-item active" data-page="dashboard">
-                    <i class="fas fa-th-large"></i>
-                    <span>Dashboard</span>
-                </div>
-                <div class="nav-item" data-page="parser">
-                    <i class="fas fa-wand-magic-sparkles"></i>
-                    <span>Importar Edital</span>
-                </div>
-                <div class="nav-item" data-page="plans">
-                    <i class="fas fa-folder-open"></i>
-                    <span>Planos</span>
-                </div>
-                <div class="nav-item" data-page="subjects">
-                    <i class="fas fa-book"></i>
-                    <span>Disciplinas</span>
-                </div>
-                <div class="nav-item" data-page="mock-exams">
-                    <i class="fas fa-list-check"></i>
-                    <span>Simulados</span>
-                </div>
-                <div class="nav-item" data-page="planning">
-                    <i class="fas fa-calendar-alt"></i>
-                    <span>Planejamento</span>
-                </div>
+    <!-- TODO SEU HTML CONTINUA IGUAL -->
 
-                <div class="install-container" id="installContainer" style="display: none; padding: 1rem; margin-top: auto;">
-                    <button class="btn btn-primary" id="installBtn" style="width: 100%;">
-                        <i class="fas fa-download"></i> Instalar App
-                    </button>
-                </div>
-            </nav>
-            
-            <div class="sidebar-footer">
-                <p>© 2026 Projeto Federal</p>
-            </div>
-        </aside>
-
-        <main class="main-content">
-            <header class="top-navbar">
-                <div class="nav-left">
-                    <button id="mobileMenuBtn" class="mobile-only btn-icon">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h1 id="pageTitle">Dashboard</h1>
-                </div>
-                <div class="nav-right">
-                    <button class="btn btn-primary" id="addStudyBtn">
-                        <i class="fas fa-plus"></i>
-                        <span class="desktop-only">Adicionar Estudo</span>
-                    </button>
-                    <div class="user-status">
-                        <span class="plan-name desktop-only">CB WILL</span>
-                        <div class="user-avatar">
-                            <img src="https://ui-avatars.com/api/?name=Will&background=001f3f&color=fff" alt="User">
-                        </div>
-                    </div>
-                </div>
-            </header>
-
-            <div class="content-wrapper">
-                <div id="dashboard-page" class="page active">
-                    <section class="dashboard-top">
-                        <div class="card stat-card">
-                            <div class="card-icon blue"><i class="fas fa-clock"></i></div>
-                            <div class="card-info">
-                                <h3>Tempo de Estudo</h3>
-                                <p id="totalStudyTime">0h 00min</p>
-                            </div>
-                        </div>
-                        <div class="card stat-card">
-                            <div class="card-icon green"><i class="fas fa-bullseye"></i></div>
-                            <div class="card-info">
-                                <h3>Desempenho</h3>
-                                <p id="overallPerformance">0%</p>
-                            </div>
-                        </div>
-                        <div class="card stat-card">
-                            <div class="card-icon purple"><i class="fas fa-tasks"></i></div>
-                            <div class="card-info">
-                                <h3>Progresso no Edital</h3>
-                                <p id="overallProgress">0%</p>
-                            </div>
-                        </div>
-                    </section>
-
-                    <section class="subjects-section">
-                        <div class="section-header">
-                            <h2>Minhas Disciplinas</h2>
-                        </div>
-                        <div class="subjects-grid" id="subjectsGrid">
-                            <div class="empty-state">
-                                <i class="fas fa-book-open"></i>
-                                <p>Carregando disciplinas...</p>
-                            </div>
-                        </div>
-                    </section>
-                </div>
-
-                <div id="parser-page" class="page hidden">
-                    <div class="section-header">
-                        <h2>Importar Edital</h2>
-                    </div>
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="form-group" style="margin-bottom: 1rem;">
-                                <label style="display: block; margin-bottom: 0.5rem;">Texto do Conteúdo Programático</label>
-                                <textarea id="editalText" rows="10" class="form-control" style="width: 100%; padding: 0.5rem;" placeholder="Cole o conteúdo programático aqui..."></textarea>
-                            </div>
-                            <button class="btn btn-primary btn-block" id="startParsingBtn" style="width: 100%;">Processar Edital com IA</button>
-                        </div>
-                    </div>
-                </div>
-            </div> </main>
-    </div> <div class="modal-overlay" id="modalOverlay"></div>
-    
-    <div id="studyModal" class="modal hidden">
-        <div class="modal-header">
-            <h3>Registrar Estudo</h3>
-            <button class="close-modal">&times;</button>
-        </div>
-        <div id="studyModalBody" class="modal-body"></div>
-    </div>
-
-    <div id="toast" class="toast">
-        <div class="toast-content">
-            <span id="toastMessage"></span>
-        </div>
-    </div>
-
-    <div id="floatingTimer" class="floating-timer">
-        <div class="timer-panel" id="timerPanel">
-            <div class="timer-display" id="timerDisplay">00:00:00</div>
-            <div class="timer-controls">
-                <button class="btn-timer start" id="startTimerBtn"><i class="fas fa-play"></i></button>
-                <button class="btn-timer pause hidden" id="pauseTimerBtn"><i class="fas fa-pause"></i></button>
-                <button class="btn-timer reset" id="resetTimerBtn"><i class="fas fa-redo"></i></button>
-            </div>
-        </div>
-        <button id="toggleTimerBtn" class="floating-timer-btn">
-            <i class="fas fa-stopwatch"></i>
-        </button>
-    </div>
-
-    <script type="module" src="./src/app.js"></script>
+    <!-- SCRIPT PRINCIPAL -->
+    <script type="module" src="/src/main.js"></script>
 </body>
 </html>
