@@ -5,12 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Projeto Federal</title>
 
+    <!-- PWA -->
     <meta name="theme-color" content="#001f3f">
     <meta name="mobile-web-app-capable" content="yes">
-
     <link rel="manifest" href="/manifest.json">
     <link rel="icon" href="/favicon.ico">
 
+    <!-- CSS DO PROJETO -->
+    <link rel="stylesheet" href="/src/style.css">
+
+    <!-- Ícones -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -18,36 +22,67 @@
 
 <div class="app-container">
 
-    <div class="sidebar-overlay"></div>
+    <!-- OVERLAY (IMPORTANTE TER ID) -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <aside class="sidebar">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <span>Projeto Federal</span>
             <button id="toggleSidebar">☰</button>
         </div>
 
-        <nav>
-            <div class="nav-item active" data-page="dashboard">Dashboard</div>
-            <div class="nav-item" data-page="parser">Importar Edital</div>
+        <nav class="sidebar-nav">
+            <div class="nav-item active" data-page="dashboard">
+                <i class="fas fa-chart-line"></i> Dashboard
+            </div>
+            <div class="nav-item" data-page="parser">
+                <i class="fas fa-wand-magic-sparkles"></i> Importar Edital
+            </div>
         </nav>
     </aside>
 
+    <!-- CONTEÚDO -->
     <main class="main-content">
-        <h1 id="pageTitle">Dashboard</h1>
 
-        <div id="dashboard-page" class="page">
-            <p>Bem-vindo ao sistema.</p>
-        </div>
+        <!-- HEADER -->
+        <header class="top-navbar">
+            <h1 id="pageTitle">Dashboard</h1>
+        </header>
 
-        <div id="parser-page" class="page hidden">
-            <textarea id="editalText" placeholder="Cole o edital aqui"></textarea>
-            <button id="startParsingBtn">Processar Edital</button>
+        <div class="content-wrapper">
+
+            <!-- DASHBOARD -->
+            <div id="dashboard-page" class="page active">
+                <p>Bem-vindo ao sistema.</p>
+            </div>
+
+            <!-- PARSER -->
+            <div id="parser-page" class="page hidden">
+                
+                <textarea 
+                    id="editalText" 
+                    placeholder="Cole o edital aqui"
+                    style="width:100%; min-height:150px; margin-bottom:10px;"
+                ></textarea>
+
+                <button id="startParsingBtn" class="btn btn-primary">
+                    Processar Edital
+                </button>
+
+                <!-- RESULTADO (SEU JS USA ISSO) -->
+                <div id="parserResult" class="hidden" style="margin-top:20px;">
+                    <pre id="jsonOutput"></pre>
+                </div>
+
+            </div>
+
         </div>
     </main>
 
 </div>
 
-<!-- ✅ IMPORTANTE -->
+<!-- SCRIPT PRINCIPAL -->
 <script type="module" src="/src/app.js"></script>
 
 </body>
