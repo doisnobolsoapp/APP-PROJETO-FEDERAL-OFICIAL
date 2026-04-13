@@ -1,75 +1,98 @@
-const CACHE_NAME = "pf-app-v1";
+const CACHE_NAME = "pf-app-v2";
+
+// ✅ SOMENTE arquivos que EXISTEM no build
 const ASSETS_TO_CACHE = [
-  "./",
-  "./index.html",
-  "./script.js",
-  "./style.css",
-  "./manifest.json",
-  "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css",
-  "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap"
+  "/",
+  "/index.html",
+  "/manifest.json"
 ];
 
-// Install Event: Cache essential assets
+// INSTALL
 self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      console.log("[Service Worker] Caching all assets");
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
-  );
-  self.skipWaiting();
-});
+  console.log("[SW] Instalando...");
 
-// Activate Event: Clean up old caches
-self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cache) => {
-          if (cache !== CACHE_NAME) {
-            console.log("[Service Worker] Deleting old cache:", cache);
-            return caches.delete(cache);
+    caches.open(CACHE_NAME).then(async (cache) => {
+      console.log("[SW] Cacheando arquivos essenciais");
+
+      // 🔥 CORREÇÃO: não quebra se algum falhar
+      await Promise.all(
+        ASSETS_TO_CACHE.map(async (url) => {
+          try {
+            const response = await fetch(url);
+
+            if (!response.ok) throw new Error("Erro no fetch");
+
+            await cache.put(url, response);
+          } catch (err) {
+            console.warn("[SW] Ignorado:", url);
           }
         })
       );
     })
   );
+
+  self.skipWaiting();
+});
+
+// ACTIVATE
+self.addEventListener("activate", (event) => {
+  console.log("[SW] Ativado");
+
+  event.waitUntil(
+    caches.keys().then((cacheNames) =>
+      Promise.all(
+        cacheNames.map((cache) => {
+          if (cache !== CACHE_NAME) {
+            console.log("[SW] Deletando cache antigo:", cache);
+            return caches.delete(cache);
+          }
+        })
+      )
+    )
+  );
+
   self.clients.claim();
 });
 
-// Fetch Event: Strategy implementation
+// FETCH
 self.addEventListener("fetch", (event) => {
-  // Skip cross-origin requests (like Gemini API) to avoid opaque response issues
-  // or handle them with Network Only/First
-  if (!event.request.url.startsWith(self.location.origin) && !event.request.url.includes("fonts.googleapis.com") && !event.request.url.includes("fonts.gstatic.com") && !event.request.url.includes("cdnjs.cloudflare.com")) {
+
+  // 🔥 IGNORA APIs externas (Gemini, etc.)
+  if (!event.request.url.startsWith(self.location.origin)) {
     return;
   }
 
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      // Cache First for static assets, Network First for others
-      if (response) {
-        return response;
-      }
+    caches.match(event.request).then((cached) => {
+      if (cached) return cached;
 
-      return fetch(event.request).then((networkResponse) => {
-        // Don't cache non-successful responses or non-GET requests
-        if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic' || event.request.method !== 'GET') {
-          return networkResponse;
-        }
+      return fetch(event.request)
+        .then((response) => {
 
-        const responseToCache = networkResponse.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseToCache);
+          // Só cacheia GET válido
+          if (
+            !response ||
+            response.status !== 200 ||
+            event.request.method !== "GET"
+          ) {
+            return response;
+          }
+
+          const clone = response.clone();
+
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, clone);
+          });
+
+          return response;
+        })
+        .catch(() => {
+          // fallback SPA
+          if (event.request.mode === "navigate") {
+            return caches.match("/index.html");
+          }
         });
-
-        return networkResponse;
-      }).catch(() => {
-        // Fallback for offline mode if network fails and not in cache
-        if (event.request.mode === 'navigate') {
-          return caches.match("./index.html");
-        }
-      });
     })
   );
 });
