@@ -6,65 +6,60 @@
   <title>Projeto Federal</title>
 
   <meta name="theme-color" content="#001f3f" />
-  <meta name="mobile-web-app-capable" content="yes" />
 
-  <!-- ✅ Manifest -->
   <link rel="manifest" href="/manifest.json" />
-
-  <!-- ✅ Favicon (corrige erro 404) -->
   <link rel="icon" href="https://ui-avatars.com/api/?name=PF&background=001f3f&color=fff">
 
-  <!-- Ícones -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 </head>
 
 <body>
 
-<!-- 🔥 ROOT DO APP (OBRIGATÓRIO) -->
 <div id="app">
 
-  <div class="app-container">
+  <!-- 🔥 HEADER -->
+  <header style="padding:10px; background:#001f3f; color:white;">
+    <h2>Projeto Federal</h2>
+  </header>
 
-    <!-- SIDEBAR -->
-    <aside id="sidebar">
-      <h2>Projeto Federal</h2>
+  <!-- 🔥 MENU -->
+  <nav style="padding:10px;">
+    <button onclick="showPage('dashboard')">Dashboard</button>
+    <button onclick="showPage('parser')">Importar Edital</button>
+  </nav>
 
-      <div class="nav-item active" data-page="dashboard">Dashboard</div>
-      <div class="nav-item" data-page="parser">Importar Edital</div>
-    </aside>
+  <!-- 🔥 PÁGINAS -->
+  <main style="padding:10px;">
 
-    <!-- CONTEÚDO -->
-    <main>
+    <div id="dashboard-page" class="page">
+      <h3>Dashboard</h3>
+      <p>Bem-vindo ao sistema 🚀</p>
+    </div>
 
-      <h1 id="pageTitle">Dashboard</h1>
+    <div id="parser-page" class="page" style="display:none;">
+      <h3>Parser</h3>
 
-      <!-- DASHBOARD -->
-      <div id="dashboard-page" class="page active">
-        <p>Bem-vindo ao sistema 🚀</p>
-      </div>
+      <textarea id="editalText" style="width:100%; height:150px;"></textarea>
 
-      <!-- PARSER -->
-      <div id="parser-page" class="page hidden">
+      <br><br>
 
-        <textarea id="editalText" placeholder="Cole o edital aqui" style="width:100%; height:150px;"></textarea>
+      <button id="startParsingBtn">Processar</button>
 
-        <br><br>
+      <pre id="jsonOutput"></pre>
+    </div>
 
-        <button id="startParsingBtn">
-          Processar Edital com IA
-        </button>
-
-        <pre id="jsonOutput" style="margin-top:20px;"></pre>
-
-      </div>
-
-    </main>
-
-  </div>
+  </main>
 
 </div>
 
-<!-- ✅ SCRIPT PRINCIPAL -->
+<script>
+function showPage(page) {
+  document.getElementById('dashboard-page').style.display = 'none';
+  document.getElementById('parser-page').style.display = 'none';
+  document.getElementById(page + '-page').style.display = 'block';
+}
+</script>
+
 <script type="module" src="/src/main.js"></script>
 
 </body>
