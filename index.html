@@ -1,66 +1,57 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projeto Federal</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Projeto Federal</title>
 
-    <meta name="theme-color" content="#001f3f">
-    <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#001f3f" />
+  <meta name="mobile-web-app-capable" content="yes" />
 
-    <link rel="manifest" href="/manifest.json">
+  <link rel="manifest" href="/manifest.json" />
 
-    <!-- ✅ FAVICON TEMPORÁRIO -->
-    <link rel="icon" href="https://ui-avatars.com/api/?name=PF&background=001f3f&color=fff">
-
-    <!-- ÍCONES -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 </head>
 
 <body>
 
-<div id="app">
+<div class="app-container">
 
-    <div class="app-container">
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <h2>Projeto Federal</h2>
 
-        <!-- SIDEBAR -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-header">
-                <span>Projeto Federal</span>
-            </div>
+    <div class="nav-item" data-page="dashboard">Dashboard</div>
+    <div class="nav-item" data-page="parser">Importar Edital</div>
+  </aside>
 
-            <nav>
-                <div class="nav-item active" data-page="dashboard">Dashboard</div>
-                <div class="nav-item" data-page="parser">Importar Edital</div>
-            </nav>
-        </aside>
+  <!-- CONTEÚDO -->
+  <main>
 
-        <!-- CONTEÚDO -->
-        <main class="main-content">
+    <h1 id="pageTitle">Dashboard</h1>
 
-            <h1 id="pageTitle">Dashboard</h1>
+    <!-- DASHBOARD -->
+    <div id="dashboard-page" class="page">
+      <p>Bem-vindo ao sistema 🚀</p>
+    </div>
 
-            <!-- DASHBOARD -->
-            <div id="dashboard-page" class="page">
-                <p>Bem-vindo ao sistema 🚀</p>
-            </div>
+    <!-- PARSER -->
+    <div id="parser-page" class="page hidden">
 
-            <!-- PARSER -->
-            <div id="parser-page" class="page hidden">
-                <textarea id="editalText" placeholder="Cole o edital aqui" style="width:100%; height:150px;"></textarea>
-                <button id="startParsingBtn">Processar Edital</button>
+      <textarea id="editalText" placeholder="Cole o edital aqui"></textarea>
 
-                <!-- RESULTADO -->
-                <pre id="jsonOutput"></pre>
-            </div>
+      <button id="startParsingBtn">
+        Processar Edital com IA
+      </button>
 
-        </main>
+      <pre id="jsonOutput"></pre>
 
     </div>
 
+  </main>
+
 </div>
 
-<!-- SCRIPT -->
 <script type="module" src="/src/main.js"></script>
 
 </body>
