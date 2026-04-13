@@ -1,37 +1,52 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export default async function handler(req, res) {
-    if (req.method !== "POST") {
-        return res.status(405).json({ error: "Método não permitido" });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Método não permitido" });
+  }
+
+  try {
+    // 🔥 Corrige problema comum do Vercel (body como string)
+    const body =
+      typeof req.body === "string" ? JSON.parse(req.body) : req.body;
+
+    const { text, metadata } = body;
+
+    // 🔥 Validação
+    if (!text) {
+      return res.status(400).json({ error: "Texto obrigatório" });
     }
 
-    try {
-        const { text } = req.body;
+    // 🔥 API KEY
+    const apiKey = process.env.GEMINI_API_KEY;
 
-        if (!text) {
-            return res.status(400).json({ error: "Texto obrigatório" });
-        }
+    if (!apiKey) {
+      console.error("❌ GEMINI_API_KEY não encontrada");
+      return res.status(500).json({ error: "API Key não configurada" });
+    }
 
-        const apiKey = process.env.GEMINI_API_KEY;
+    const genAI = new GoogleGenerativeAI(apiKey);
 
-        if (!apiKey) {
-            return res.status(500).json({ error: "API Key não configurada" });
-        }
+    // ✅ MODELO FUNCIONAL (SEM -latest)
+    const model = genAI.getGenerativeModel({
+      model: "gemini-1.5-flash-002"
+    });
 
-        const genAI = new GoogleGenerativeAI(apiKey);
+    console.log("🔥 MODEL USADO: gemini-1.5-flash-002");
 
-        // ✅ MODELO CORRETO
-        const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash-latest",
-        });
+    const prompt = `
+Você é um especialista em análise de editais de concursos públicos.
 
-        const prompt = `
-Extraia disciplinas e tópicos do edital abaixo.
+[OBJETIVO]
+Extrair disciplinas e seus respectivos tópicos do texto abaixo.
 
-TEXTO:
+[METADADOS]
+Cargo: ${metadata?.cargo || "Não informado"}
+
+[TEXTO DO EDITAL]
 ${text}
 
-FORMATO OBRIGATÓRIO:
+[FORMATO OBRIGATÓRIO]
 {
   "subjects": [
     {
@@ -41,32 +56,46 @@ FORMATO OBRIGATÓRIO:
   ]
 }
 
-REGRAS:
-- Retorne apenas JSON
-- Sem explicações
+[REGRAS]
+- Retorne apenas JSON válido
+- Não use markdown
+- Não use crases
+- Não explique nada
 `;
 
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
+    // 🔥 Chamada segura
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
 
-        let raw = response.text();
+    let raw = response.text();
 
-        // 🔥 LIMPEZA (ESSENCIAL)
-        raw = raw
-            .replace(/```json/g, "")
-            .replace(/```/g, "")
-            .trim();
+    // 🔥 LIMPEZA FUNDAMENTAL
+    raw = raw
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
 
-        const data = JSON.parse(raw);
+    let data;
 
-        return res.status(200).json(data);
+    try {
+      data = JSON.parse(raw);
+    } catch (err) {
+      console.error("❌ JSON inválido vindo da IA:", raw);
 
-    } catch (error) {
-        console.error("Erro:", error);
-
-        return res.status(500).json({
-            error: "Erro no parser",
-            details: error.message
-        });
+      return res.status(500).json({
+        error: "Resposta inválida da IA",
+        raw: raw
+      });
     }
+
+    return res.status(200).json(data);
+
+  } catch (error) {
+    console.error("❌ ERRO GERAL:", error);
+
+    return res.status(500).json({
+      error: "Erro no parser",
+      details: error.message
+    });
+  }
 }
