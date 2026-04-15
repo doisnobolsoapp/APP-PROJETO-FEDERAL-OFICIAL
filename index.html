@@ -1,197 +1,93 @@
-// 🚀 PROJETO FEDERAL - VERSÃO PRO COMPLETA
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Projeto Federal</title>
 
-class StudyApp {
-  constructor() {
-    console.log("🚀 App PRO iniciando...");
+  <meta name="theme-color" content="#001f3f" />
 
-    // 🔥 STORAGE
-    this.subjects = JSON.parse(localStorage.getItem('pf_subjects')) || [];
-    this.history = JSON.parse(localStorage.getItem('pf_history')) || [];
-    this.simulados = JSON.parse(localStorage.getItem('pf_simulados')) || [];
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="icon" href="https://ui-avatars.com/api/?name=PF&background=001f3f&color=fff">
 
-    this.initElements();
-    this.initEvents();
-    this.renderAll();
+  <!-- Ícones -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+</head>
 
-    console.log("✅ App PRO pronto");
-  }
+<body>
 
-  // ================= ELEMENTOS =================
-  initElements() {
-    this.navItems = document.querySelectorAll('.nav-item');
-    this.pages = document.querySelectorAll('.page');
-    this.pageTitle = document.getElementById('pageTitle');
+<div id="app">
 
-    this.editalText = document.getElementById('editalText');
-    this.jsonOutput = document.getElementById('jsonOutput');
+  <div class="app-container">
 
-    this.subjectsGrid = document.getElementById('subjectsGrid');
-    this.planningContainer = document.getElementById('planningContainer');
-    this.mockTable = document.getElementById('mockExamsTableBody');
-  }
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+      <h2>Projeto Federal</h2>
 
-  // ================= EVENTOS =================
-  initEvents() {
-    this.navItems.forEach(item => {
-      item.addEventListener('click', () => {
-        const page = item.dataset.page;
-        this.navigate(page);
-      });
-    });
+      <div class="nav-item active" data-page="dashboard">Dashboard</div>
+      <div class="nav-item" data-page="parser">Importar Edital</div>
+      <div class="nav-item" data-page="subjects">Disciplinas</div>
+      <div class="nav-item" data-page="planning">Planejamento</div>
+      <div class="nav-item" data-page="mock-exams">Simulados</div>
+    </aside>
 
-    document.getElementById('startParsingBtn')?.addEventListener('click', () => this.parseEdital());
-    document.getElementById('generatePlanningBtn')?.addEventListener('click', () => this.generatePlanning());
-    document.getElementById('addMockBtn')?.addEventListener('click', () => this.addMock());
-    document.getElementById('newSubjectBtn')?.addEventListener('click', () => this.addSubject());
-  }
+    <!-- CONTEÚDO -->
+    <main>
 
-  // ================= NAVEGAÇÃO =================
-  navigate(page) {
-    this.navItems.forEach(i => i.classList.toggle('active', i.dataset.page === page));
+      <h1 id="pageTitle">Dashboard</h1>
 
-    this.pages.forEach(p => p.classList.remove('active'));
-    document.getElementById(page + '-page')?.classList.add('active');
-
-    const titles = {
-      dashboard: "Dashboard",
-      parser: "Importar Edital",
-      subjects: "Disciplinas",
-      planning: "Planejamento",
-      'mock-exams': "Simulados"
-    };
-
-    this.pageTitle.textContent = titles[page] || "Projeto Federal";
-  }
-
-  // ================= PARSER =================
-  parseEdital() {
-    const text = this.editalText.value.trim();
-
-    if (!text) return alert("Cole o edital");
-
-    const disciplinas = text
-      .split(/\n|,|;/)
-      .map(t => t.trim())
-      .filter(t => t.length > 3);
-
-    this.subjects = disciplinas.map((d, i) => ({
-      id: Date.now() + i,
-      name: d,
-      progress: 0
-    }));
-
-    this.save();
-    this.renderSubjects();
-
-    this.jsonOutput.textContent = JSON.stringify(this.subjects, null, 2);
-  }
-
-  // ================= DISCIPLINAS =================
-  addSubject() {
-    const name = prompt("Nome da disciplina:");
-    if (!name) return;
-
-    this.subjects.push({ id: Date.now(), name, progress: 0 });
-    this.save();
-    this.renderSubjects();
-  }
-
-  renderSubjects() {
-    if (!this.subjectsGrid) return;
-
-    this.subjectsGrid.innerHTML = this.subjects.map(s => `
-      <div class="card">
-        <h3>${s.name}</h3>
-        <p>Progresso: ${s.progress}%</p>
-        <button onclick="app.study(${s.id})">Estudar</button>
+      <!-- DASHBOARD -->
+      <div id="dashboard-page" class="page active">
+        <p>Bem-vindo ao sistema 🚀</p>
+        <p id="totalStudyTime"></p>
+        <p id="overallPerformance"></p>
       </div>
-    `).join('');
-  }
 
-  study(id) {
-    const subject = this.subjects.find(s => s.id === id);
-    if (!subject) return;
+      <!-- PARSER -->
+      <div id="parser-page" class="page">
+        <textarea id="editalText" placeholder="Cole o edital aqui"></textarea>
+        <br><br>
+        <button id="startParsingBtn">Processar Edital</button>
+        <pre id="jsonOutput"></pre>
+      </div>
 
-    subject.progress = Math.min(100, subject.progress + 10);
+      <!-- DISCIPLINAS -->
+      <div id="subjects-page" class="page">
+        <button id="newSubjectBtn">Nova Disciplina</button>
+        <div id="subjectsGrid"></div>
+      </div>
 
-    this.history.push({
-      subject: subject.name,
-      date: new Date().toLocaleDateString()
-    });
+      <!-- PLANEJAMENTO -->
+      <div id="planning-page" class="page">
+        <button id="generatePlanningBtn">Gerar Planejamento</button>
+        <div id="planningContainer"></div>
+      </div>
 
-    this.save();
-    this.renderAll();
-  }
+      <!-- SIMULADOS -->
+      <div id="mock-exams-page" class="page">
+        <button id="addMockBtn">Novo Simulado</button>
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Nome</th>
+              <th>Total</th>
+              <th>Acertos</th>
+              <th>%</th>
+            </tr>
+          </thead>
+          <tbody id="mockExamsTableBody"></tbody>
+        </table>
+      </div>
 
-  // ================= PLANEJAMENTO =================
-  generatePlanning() {
-    if (!this.planningContainer) return;
+    </main>
 
-    const plano = this.subjects.map((s, i) => `Dia ${i + 1}: ${s.name}`);
+  </div>
 
-    this.planningContainer.innerHTML = plano
-      .map(p => `<div class="card">${p}</div>`)
-      .join('');
-  }
+</div>
 
-  // ================= SIMULADOS =================
-  addMock() {
-    const nome = prompt("Nome do simulado:");
-    const total = Number(prompt("Total de questões:"));
-    const acertos = Number(prompt("Acertos:"));
+<!-- ✅ ÚNICO SCRIPT -->
+<script type="module" src="/src/main.js"></script>
 
-    if (!nome || !total) return;
-
-    const percent = ((acertos / total) * 100).toFixed(1);
-
-    this.simulados.push({ nome, total, acertos, percent });
-
-    this.save();
-    this.renderMocks();
-  }
-
-  renderMocks() {
-    if (!this.mockTable) return;
-
-    this.mockTable.innerHTML = this.simulados.map(m => `
-      <tr>
-        <td>${new Date().toLocaleDateString()}</td>
-        <td>${m.nome}</td>
-        <td>${m.total}</td>
-        <td>${m.acertos}</td>
-        <td>${m.percent}%</td>
-      </tr>
-    `).join('');
-  }
-
-  // ================= DASHBOARD =================
-  renderDashboard() {
-    const totalStudy = this.history.length * 30;
-    const performance = this.simulados.length
-      ? (this.simulados.reduce((a, b) => a + Number(b.percent), 0) / this.simulados.length).toFixed(1)
-      : 0;
-
-    document.getElementById('totalStudyTime') && (document.getElementById('totalStudyTime').innerText = totalStudy + ' min');
-    document.getElementById('overallPerformance') && (document.getElementById('overallPerformance').innerText = performance + '%');
-  }
-
-  // ================= SAVE =================
-  save() {
-    localStorage.setItem('pf_subjects', JSON.stringify(this.subjects));
-    localStorage.setItem('pf_history', JSON.stringify(this.history));
-    localStorage.setItem('pf_simulados', JSON.stringify(this.simulados));
-  }
-
-  // ================= RENDER =================
-  renderAll() {
-    this.renderSubjects();
-    this.renderMocks();
-    this.renderDashboard();
-    this.navigate('dashboard');
-  }
-}
-
-// INIT
-window.addEventListener('DOMContentLoaded', () => {
-  window.app = new StudyApp();
-});
+</body>
+</html>
