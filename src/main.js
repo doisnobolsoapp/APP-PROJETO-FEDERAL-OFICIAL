@@ -7,16 +7,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     const app = document.getElementById('app');
 
     if (!app) {
-      console.error("❌ ERRO: #app não encontrada");
+      console.error("❌ #app não encontrada");
       return;
     }
 
     console.log("✅ #app encontrada");
 
-    // ❌ REMOVIDO: NÃO APAGAR O HTML
-    // app.innerHTML = "";
+    // ❌ REMOVIDO: app.innerHTML = ""
+    // 👉 NUNCA apague o HTML, ele já está pronto no index.html
 
-    // ✅ Apenas importa o app
     await import('./app.js');
 
     console.log("✅ app.js carregado com sucesso");
@@ -26,8 +25,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-
-// ✅ Service Worker
+// Service Worker
 if ('serviceWorker' in navigator && location.hostname !== "localhost") {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js')
