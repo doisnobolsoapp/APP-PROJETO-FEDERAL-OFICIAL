@@ -1,63 +1,153 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Projeto Federal</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto Federal | Inteligência em Concursos</title>
 
-  <meta name="theme-color" content="#001f3f" />
+    <link rel="manifest" href="/manifest.json">
 
-  <link rel="manifest" href="/manifest.json" />
-  <link rel="icon" href="https://ui-avatars.com/api/?name=PF&background=001f3f&color=fff">
+    <meta name="theme-color" content="#001f3f">
+    <meta name="mobile-web-app-capable" content="yes">
 
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <!-- iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Projeto Federal">
+    <link rel="apple-touch-icon" href="https://ui-avatars.com/api/?name=PF&background=001f3f&color=fff&size=192">
+
+    <!-- FIX fetch -->
+    <script>
+        (function() {
+            try {
+                const originalFetch = window.fetch;
+                Object.defineProperty(window, 'fetch', {
+                    configurable: true,
+                    get: () => originalFetch,
+                    set: () => console.warn('System: Attempted to overwrite window.fetch.')
+                });
+            } catch (e) {}
+        })();
+    </script>
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
 <body>
 
+<!-- 🔥 CORREÇÃO CRÍTICA -->
 <div id="app">
 
-  <div class="app-container">
+    <div class="app-container">
 
-    <!-- SIDEBAR -->
-    <aside id="sidebar">
-      <h2>Projeto Federal</h2>
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-      <div class="nav-item active" data-page="dashboard">
-        <span>Dashboard</span>
-      </div>
+        <!-- SIDEBAR -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-shield-halved"></i>
+                    <span>Projeto Federal</span>
+                </div>
+                <button class="toggle-btn" id="toggleSidebar">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
 
-      <div class="nav-item" data-page="parser">
-        <span>Importar Edital</span>
-      </div>
-    </aside>
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active" data-page="dashboard">
+                        <i class="fas fa-th-large"></i>
+                        <span>Dashboard</span>
+                    </li>
 
-    <!-- CONTEÚDO -->
-    <main>
+                    <li class="nav-item" data-page="parser">
+                        <i class="fas fa-wand-magic-sparkles"></i>
+                        <span>Importar Edital</span>
+                    </li>
 
-      <h1 id="pageTitle">Dashboard</h1>
+                    <li class="nav-item" data-page="plans">
+                        <i class="fas fa-folder-open"></i>
+                        <span>Planos</span>
+                    </li>
 
-      <!-- DASHBOARD -->
-      <div id="dashboard-page" class="page active">
-        <p>Bem-vindo ao sistema 🚀</p>
-      </div>
+                    <li class="nav-item" data-page="subjects">
+                        <i class="fas fa-book"></i>
+                        <span>Disciplinas</span>
+                    </li>
 
-      <!-- PARSER -->
-      <div id="parser-page" class="page">
-        <textarea id="editalText" placeholder="Cole o edital aqui"></textarea>
+                    <li class="nav-item" data-page="announcement">
+                        <i class="fas fa-file-contract"></i>
+                        <span>Edital</span>
+                    </li>
 
-        <br><br>
+                    <li class="nav-item" data-page="stats">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>Estatísticas</span>
+                    </li>
 
-        <button id="startParsingBtn">
-          Processar Edital
-        </button>
+                    <li class="nav-item" data-page="mock-exams">
+                        <i class="fas fa-list-check"></i>
+                        <span>Simulados</span>
+                    </li>
 
-        <pre id="jsonOutput"></pre>
-      </div>
+                    <li class="nav-item" data-page="planning">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Planejamento</span>
+                    </li>
+                </ul>
 
-    </main>
+                <div id="installContainer" style="display:none; padding:1rem;">
+                    <button id="installBtn" class="btn btn-primary w-full">
+                        <i class="fas fa-download"></i> Instalar App
+                    </button>
+                </div>
+            </nav>
 
-  </div>
+            <div class="sidebar-footer">
+                <p>© 2026 Projeto Federal</p>
+            </div>
+        </aside>
+
+        <!-- MAIN -->
+        <main class="main-content">
+
+            <header class="top-navbar">
+                <div class="nav-left">
+                    <button id="mobileMenuBtn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h1 id="pageTitle">Dashboard</h1>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+
+                <!-- DASHBOARD -->
+                <div id="dashboard-page" class="page active">
+                    <p>Dashboard carregado ✅</p>
+                </div>
+
+                <!-- PARSER -->
+                <div id="parser-page" class="page">
+                    <textarea id="editalText"></textarea>
+                    <button id="startParsingBtn">Processar</button>
+                    <pre id="jsonOutput"></pre>
+                </div>
+
+                <!-- OUTRAS PÁGINAS -->
+                <div id="plans-page" class="page"></div>
+                <div id="subjects-page" class="page"></div>
+                <div id="announcement-page" class="page"></div>
+                <div id="stats-page" class="page"></div>
+                <div id="mock-exams-page" class="page"></div>
+                <div id="planning-page" class="page"></div>
+
+            </div>
+        </main>
+    </div>
 
 </div>
 
