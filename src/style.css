@@ -2,7 +2,7 @@ body {
   margin: 0;
   font-family: 'Inter', sans-serif;
   background: #0f172a;
-  color: #fff;
+  color: #e2e8f0;
 }
 
 .app-container {
@@ -22,16 +22,19 @@ body {
   margin-bottom: 10px;
   border-radius: 8px;
   cursor: pointer;
+  color: #94a3b8;
 }
 
 .nav-item.active {
   background: #6366f1;
+  color: white;
 }
 
 /* MAIN */
 main {
   flex: 1;
   padding: 20px;
+  overflow-y: auto;
 }
 
 /* PAGES */
@@ -43,6 +46,7 @@ main {
   background: #020617;
   padding: 20px;
   border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
 }
 
 /* GRID */
@@ -55,14 +59,8 @@ main {
 /* DISCIPLINAS */
 #subjectsGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px,1fr));
-  gap: 10px;
-}
-
-.subject-card {
-  background: #020617;
-  padding: 10px;
-  border-radius: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(220px,1fr));
+  gap: 15px;
 }
 
 /* BOTÕES */
@@ -75,9 +73,55 @@ button {
   cursor: pointer;
 }
 
+button:hover {
+  opacity: 0.9;
+}
+
 /* INPUT */
 textarea {
   width: 100%;
   height: 150px;
   margin-bottom: 10px;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+/* 🔥 TABELA PLANEJAMENTO */
+.planning-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  background: #020617;
+}
+
+.planning-table th,
+.planning-table td {
+  padding: 12px;
+  border-bottom: 1px solid #1e293b;
+}
+
+.planning-table th {
+  background: #020617;
+  color: #94a3b8;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.planning-table tr:hover {
+  background: #1e293b;
+}
+
+.status {
+  padding: 5px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+.status.pendente {
+  background: #f59e0b;
+  color: black;
+}
+
+.danger {
+  color: #ef4444;
 }
