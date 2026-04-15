@@ -1,122 +1,95 @@
-/* RESET */
 body {
   margin: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: Arial;
   background: #020617;
-  color: #e2e8f0;
+  color: #fff;
 }
 
-/* CONTAINER */
-#planningContainer {
-  width: 100%;
-  overflow-x: auto;
+.app-container {
+  display: flex;
+  height: 100vh;
 }
 
-/* BOTÃO */
-button {
-  background: #7c3aed;
-  border: none;
-  padding: 10px 16px;
-  color: white;
-  border-radius: 8px;
+/* SIDEBAR */
+#sidebar {
+  width: 220px;
+  background: #020617;
+  padding: 20px;
+}
+
+.nav-item {
+  padding: 10px;
   cursor: pointer;
-  margin-bottom: 15px;
+  border-radius: 6px;
 }
 
-/* ================= TABELA ================= */
-.planning-table {
+.nav-item.active {
+  background: #6366f1;
+}
+
+/* MAIN */
+main {
+  flex: 1;
+  padding: 20px;
+}
+
+/* CARDS */
+.card {
+  background: #0f172a;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+/* GRID */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+
+.top-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+}
+
+/* PROGRESS */
+.progress-bar {
+  height: 10px;
+  background: #1e293b;
+  border-radius: 10px;
+  margin: 15px 0;
+}
+
+#progressFill {
+  height: 100%;
+  background: #22c55e;
+  width: 0%;
+}
+
+/* TABLE */
+.table {
   width: 100%;
   border-collapse: collapse;
-  table-layout: fixed; /* 🔥 ESSENCIAL */
-  min-width: 900px;
+  margin-top: 15px;
 }
 
-/* CABEÇALHO */
-.planning-table th {
-  background: #020617;
-  color: #60a5fa;
-  text-align: left;
-  padding: 12px;
-  font-size: 13px;
+.table th, .table td {
+  padding: 10px;
   border-bottom: 1px solid #1e293b;
 }
 
-/* CÉLULAS */
-.planning-table td {
-  padding: 12px;
-  border-bottom: 1px solid #0f172a;
-  font-size: 13px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* HOVER */
-.planning-table tr:hover {
-  background: #0f172a;
+.table tr:hover {
+  background: #1e293b;
   cursor: pointer;
-}
-
-/* ================= TAMANHO DAS COLUNAS ================= */
-.planning-table th:nth-child(1),
-.planning-table td:nth-child(1) {
-  width: 50px;
-}
-
-.planning-table th:nth-child(2),
-.planning-table td:nth-child(2) {
-  width: 180px;
-}
-
-.planning-table th:nth-child(3),
-.planning-table td:nth-child(3) {
-  width: 160px;
-}
-
-.planning-table th:nth-child(4),
-.planning-table td:nth-child(4) {
-  width: 250px;
-}
-
-.planning-table th:nth-child(5),
-.planning-table td:nth-child(5) {
-  width: 100px;
-  text-align: center;
-}
-
-.planning-table th:nth-child(6),
-.planning-table td:nth-child(6) {
-  width: 120px;
-  text-align: center;
-}
-
-.planning-table th:nth-child(7),
-.planning-table td:nth-child(7) {
-  width: 120px;
-  text-align: center;
-}
-
-/* PERFORMANCE */
-.perf {
-  color: #ef4444;
-  font-weight: bold;
 }
 
 /* STATUS */
 .status {
-  padding: 5px 10px;
+  padding: 4px 8px;
   border-radius: 6px;
   font-size: 12px;
-  font-weight: bold;
-  display: inline-block;
 }
 
-.status.pendente {
-  background: #facc15;
-  color: #000;
-}
-
-.status.concluido {
-  background: #22c55e;
-  color: #000;
-}
+.pendente { background: orange; }
+.concluido { background: green; }
