@@ -20,6 +20,8 @@ class StudyApp {
         this.editalText = document.getElementById('editalText');
         this.startParsingBtn = document.getElementById('startParsingBtn');
         this.jsonOutput = document.getElementById('jsonOutput');
+
+        console.log("📄 Páginas encontradas:", this.pages.length);
     }
 
     initEventListeners() {
@@ -39,10 +41,11 @@ class StudyApp {
         }
     }
 
+    // ✅ CORREÇÃO PRINCIPAL AQUI
     navigateTo(pageId) {
         console.log("➡️ Navegando para:", pageId);
 
-        // menu ativo
+        // ativa menu
         this.navItems.forEach(item => {
             item.classList.toggle(
                 'active',
@@ -50,21 +53,26 @@ class StudyApp {
             );
         });
 
-        // páginas
+        // 🔥 CORREÇÃO: usa "active" (não hidden)
         this.pages.forEach(page => {
             if (page.id === `${pageId}-page`) {
-                page.classList.remove('hidden');
+                page.classList.add('active');
             } else {
-                page.classList.add('hidden');
+                page.classList.remove('active');
             }
         });
 
-        // título
+        // título dinâmico
         if (this.pageTitle) {
-            this.pageTitle.textContent =
-                pageId === 'parser'
-                    ? 'Importar Edital'
-                    : 'Dashboard';
+            const titles = {
+                dashboard: "Dashboard",
+                parser: "Importar Edital",
+                disciplinas: "Disciplinas",
+                planejamento: "Planejamento",
+                simulados: "Simulados"
+            };
+
+            this.pageTitle.textContent = titles[pageId] || "Projeto Federal";
         }
     }
 
@@ -72,7 +80,7 @@ class StudyApp {
         this.navigateTo('dashboard');
     }
 
-    // 🔥 NOVO PARSER (SEM API, SEM IA)
+    // 🔥 PARSER LOCAL (SEM IA)
     handleParsing() {
         const text = this.editalText?.value?.trim();
 
@@ -82,7 +90,6 @@ class StudyApp {
         }
 
         try {
-            // 🔥 processamento local
             const disciplinas = text
                 .split(/\n|,|;/)
                 .map(l => l.trim())
@@ -100,7 +107,6 @@ class StudyApp {
                 }))
             };
 
-            // mostra JSON
             if (this.jsonOutput) {
                 this.jsonOutput.textContent = JSON.stringify(resultado, null, 2);
             }
