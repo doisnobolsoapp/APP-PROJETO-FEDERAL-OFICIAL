@@ -3,90 +3,88 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Projeto Federal</title>
+  <title>Projeto Federal PRO</title>
 
-  <meta name="theme-color" content="#001f3f" />
+  <meta name="theme-color" content="#0f172a" />
 
   <link rel="manifest" href="/manifest.json" />
-  <link rel="icon" href="https://ui-avatars.com/api/?name=PF&background=001f3f&color=fff">
 
-  <!-- Ícones -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 </head>
 
 <body>
 
-<div id="app">
+<div class="app-container">
 
-  <div class="app-container">
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <h2>Projeto Federal</h2>
 
-    <!-- SIDEBAR -->
-    <aside id="sidebar">
-      <h2>Projeto Federal</h2>
+    <div class="nav-item active" data-page="dashboard">Dashboard</div>
+    <div class="nav-item" data-page="parser">Importar Edital</div>
+    <div class="nav-item" data-page="subjects">Disciplinas</div>
+    <div class="nav-item" data-page="planning">Planejamento</div>
+    <div class="nav-item" data-page="mock-exams">Simulados</div>
+  </aside>
 
-      <div class="nav-item active" data-page="dashboard">Dashboard</div>
-      <div class="nav-item" data-page="parser">Importar Edital</div>
-      <div class="nav-item" data-page="subjects">Disciplinas</div>
-      <div class="nav-item" data-page="planning">Planejamento</div>
-      <div class="nav-item" data-page="mock-exams">Simulados</div>
-    </aside>
+  <!-- MAIN -->
+  <main>
 
-    <!-- CONTEÚDO -->
-    <main>
+    <h1 id="pageTitle">Dashboard</h1>
 
-      <h1 id="pageTitle">Dashboard</h1>
+    <!-- DASHBOARD -->
+    <div id="dashboard-page" class="page active">
+      <div class="dashboard-grid">
+        <div class="card stat-card">
+          <h3>Tempo de Estudo</h3>
+          <p id="totalStudyTime">0 min</p>
+        </div>
 
-      <!-- DASHBOARD -->
-      <div id="dashboard-page" class="page active">
-        <p>Bem-vindo ao sistema 🚀</p>
-        <p id="totalStudyTime"></p>
-        <p id="overallPerformance"></p>
+        <div class="card stat-card">
+          <h3>Performance</h3>
+          <p id="overallPerformance">0%</p>
+        </div>
       </div>
+    </div>
 
-      <!-- PARSER -->
-      <div id="parser-page" class="page">
-        <textarea id="editalText" placeholder="Cole o edital aqui"></textarea>
-        <br><br>
-        <button id="startParsingBtn">Processar Edital</button>
-        <pre id="jsonOutput"></pre>
-      </div>
+    <!-- PARSER -->
+    <div id="parser-page" class="page">
+      <textarea id="editalText" placeholder="Cole o edital aqui"></textarea>
+      <button id="startParsingBtn">Processar</button>
+      <pre id="jsonOutput"></pre>
+    </div>
 
-      <!-- DISCIPLINAS -->
-      <div id="subjects-page" class="page">
-        <button id="newSubjectBtn">Nova Disciplina</button>
-        <div id="subjectsGrid"></div>
-      </div>
+    <!-- DISCIPLINAS -->
+    <div id="subjects-page" class="page">
+      <button id="newSubjectBtn">+ Nova</button>
+      <div id="subjectsGrid"></div>
+    </div>
 
-      <!-- PLANEJAMENTO -->
-      <div id="planning-page" class="page">
-        <button id="generatePlanningBtn">Gerar Planejamento</button>
-        <div id="planningContainer"></div>
-      </div>
+    <!-- PLANEJAMENTO -->
+    <div id="planning-page" class="page">
+      <button id="generatePlanningBtn">Gerar</button>
+      <div id="planningContainer"></div>
+    </div>
 
-      <!-- SIMULADOS -->
-      <div id="mock-exams-page" class="page">
-        <button id="addMockBtn">Novo Simulado</button>
-        <table>
-          <thead>
-            <tr>
-              <th>Data</th>
-              <th>Nome</th>
-              <th>Total</th>
-              <th>Acertos</th>
-              <th>%</th>
-            </tr>
-          </thead>
-          <tbody id="mockExamsTableBody"></tbody>
-        </table>
-      </div>
+    <!-- SIMULADOS -->
+    <div id="mock-exams-page" class="page">
+      <button id="addMockBtn">Novo</button>
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Nome</th>
+            <th>%</th>
+          </tr>
+        </thead>
+        <tbody id="mockExamsTableBody"></tbody>
+      </table>
+    </div>
 
-    </main>
-
-  </div>
+  </main>
 
 </div>
 
-<!-- ✅ ÚNICO SCRIPT -->
 <script type="module" src="/src/main.js"></script>
 
 </body>
