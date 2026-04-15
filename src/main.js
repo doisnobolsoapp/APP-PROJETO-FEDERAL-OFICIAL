@@ -1,5 +1,6 @@
 import './style.css';
 
+// 🚀 Inicialização segura
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("🚀 MAIN INICIADO");
 
@@ -13,10 +14,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     console.log("✅ #app encontrada");
 
-    // ❌ REMOVA ISSO (ESSA LINHA QUEBRAVA TUDO)
+    // ❌ REMOVIDO: NÃO APAGA O HTML
     // app.innerHTML = "";
 
-    // ✅ apenas carrega o app.js
+    // 🔥 Apenas importa o app
     await import('./app.js');
 
     console.log("✅ app.js carregado com sucesso");
@@ -27,7 +28,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 
-// SERVICE WORKER
+// ✅ SERVICE WORKER
 if ('serviceWorker' in navigator && location.hostname !== "localhost") {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js')
