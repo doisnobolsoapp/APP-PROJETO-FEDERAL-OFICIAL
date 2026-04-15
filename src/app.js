@@ -21,7 +21,7 @@ class StudyApp {
         this.startParsingBtn = document.getElementById('startParsingBtn');
         this.jsonOutput = document.getElementById('jsonOutput');
 
-        console.log("📄 Páginas encontradas:", this.pages.length);
+        console.log("📦 Pages encontradas:", this.pages.length);
     }
 
     initEventListeners() {
@@ -41,11 +41,10 @@ class StudyApp {
         }
     }
 
-    // ✅ CORREÇÃO PRINCIPAL AQUI
     navigateTo(pageId) {
         console.log("➡️ Navegando para:", pageId);
 
-        // ativa menu
+        // menu ativo
         this.navItems.forEach(item => {
             item.classList.toggle(
                 'active',
@@ -53,23 +52,21 @@ class StudyApp {
             );
         });
 
-        // 🔥 CORREÇÃO: usa "active" (não hidden)
+        // páginas (AGORA FUNCIONA)
         this.pages.forEach(page => {
-            if (page.id === `${pageId}-page`) {
-                page.classList.add('active');
-            } else {
-                page.classList.remove('active');
-            }
+            page.classList.remove('active');
         });
 
-        // título dinâmico
+        const activePage = document.getElementById(`${pageId}-page`);
+        if (activePage) {
+            activePage.classList.add('active');
+        }
+
+        // título
         if (this.pageTitle) {
             const titles = {
                 dashboard: "Dashboard",
-                parser: "Importar Edital",
-                disciplinas: "Disciplinas",
-                planejamento: "Planejamento",
-                simulados: "Simulados"
+                parser: "Importar Edital"
             };
 
             this.pageTitle.textContent = titles[pageId] || "Projeto Federal";
@@ -80,7 +77,6 @@ class StudyApp {
         this.navigateTo('dashboard');
     }
 
-    // 🔥 PARSER LOCAL (SEM IA)
     handleParsing() {
         const text = this.editalText?.value?.trim();
 
