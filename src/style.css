@@ -1,155 +1,110 @@
-/* Projeto Federal - Estilos Oficiais */
-:root {
-    --primary-color: #001f3f; /* Azul Marinho */
-    --secondary-color: #0074D9;
-    --bg-color: #f4f7f6;
-    --text-color: #333;
-    --sidebar-width: 260px;
-    --sidebar-collapsed: 70px;
-    --white: #ffffff;
-    --transition: all 0.3s ease;
-}
+class StudyApp {
+    constructor() {
+        console.log("🚀 App inicializando...");
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
+        this.subjects = JSON.parse(localStorage.getItem('pf_subjects')) || [];
+        this.history = JSON.parse(localStorage.getItem('pf_history')) || [];
 
-body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    overflow-x: hidden;
-}
+        this.initElements();
+        this.initEventListeners();
+        this.renderAll();
 
-/* Estrutura Principal */
-.app-container {
-    display: flex;
-    min-height: 100vh;
-}
-
-/* Sidebar */
-.sidebar {
-    width: var(--sidebar-width);
-    background-color: var(--primary-color);
-    color: var(--white);
-    height: 100vh;
-    position: fixed;
-    transition: var(--transition);
-    display: flex;
-    flex-direction: column;
-    z-index: 1000;
-}
-
-.sidebar.collapsed {
-    width: var(--sidebar-collapsed);
-}
-
-.sidebar.collapsed span, 
-.sidebar.collapsed .sidebar-footer {
-    display: none;
-}
-
-/* Conteúdo Principal */
-.main-content {
-    flex: 1;
-    margin-left: var(--sidebar-width);
-    transition: var(--transition);
-    padding: 20px;
-}
-
-.sidebar.collapsed + .main-content {
-    margin-left: var(--sidebar-collapsed);
-}
-
-/* Utilitários */
-.hidden {
-    display: none !important;
-}
-
-.page {
-    animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-/* Cards da Dashboard */
-.dashboard-top {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 30px;
-}
-
-.card {
-    background: var(--white);
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    display: flex;
-    align-items: center;
-}
-
-.card-icon {
-    font-size: 2rem;
-    margin-right: 15px;
-}
-
-.blue { color: var(--secondary-color); }
-.green { color: #2ecc40; }
-.purple { color: #b10dc9; }
-
-/* Timer Flutuante */
-.floating-timer {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 2000;
-}
-
-.timer-panel {
-    background: var(--white);
-    padding: 15px;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    margin-bottom: 10px;
-    display: none;
-    text-align: center;
-}
-
-.timer-panel.active {
-    display: block;
-}
-
-.timer-display {
-    font-size: 1.5rem;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-/* Mobile */
-@media (max-width: 768px) {
-    .sidebar {
-        left: -100%;
+        console.log("✅ App pronto");
     }
-    .sidebar.active {
-        left: 0;
-        width: var(--sidebar-width);
+
+    initElements() {
+        this.navItems = document.querySelectorAll('.nav-item');
+        this.pages = document.querySelectorAll('.page');
+        this.pageTitle = document.getElementById('pageTitle');
+
+        this.editalText = document.getElementById('editalText');
+        this.startParsingBtn = document.getElementById('startParsingBtn');
+        this.jsonOutput = document.getElementById('jsonOutput');
     }
-    .main-content {
-        margin-left: 0 !important;
+
+    initEventListeners() {
+        console.log("🎯 Eventos iniciados");
+
+        this.navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const pageId = item.getAttribute('data-page');
+                this.navigateTo(pageId);
+            });
+        });
+
+        if (this.startParsingBtn) {
+            this.startParsingBtn.addEventListener('click', () => {
+                this.handleParsing();
+            });
+        }
     }
-    .sidebar-overlay.active {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0,0,0,0.5);
-        z-index: 999;
+
+    // 🔥 CORREÇÃO PRINCIPAL AQUI
+    navigateTo(pageId) {
+        console.log("➡️ Navegando para:", pageId);
+
+        // ativa menu
+        this.navItems.forEach(item => {
+            item.classList.toggle(
+                'active',
+                item.getAttribute('data-page') === pageId
+            );
+        });
+
+        // mostra/esconde páginas (SEM QUEBRAR CSS)
+        this.pages.forEach(page => {
+            if (page.id === `${pageId}-page`) {
+                page.classList.remove('hidden');
+            } else {
+                page.classList.add('hidden');
+            }
+        });
+
+        // título
+        if (this.pageTitle) {
+            this.pageTitle.textContent =
+                pageId === 'parser'
+                    ? 'Importar Edital'
+                    : 'Dashboard';
+        }
+    }
+
+    renderAll() {
+        this.navigateTo('dashboard');
+    }
+
+    async handleParsing() {
+        const text = this.editalText?.value?.trim();
+
+        if (!text) {
+            alert("Cole o edital primeiro");
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/parse-edital', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    text,
+                    metadata: { cargo: "Teste" }
+                })
+            });
+
+            const data = await res.json();
+
+            if (this.jsonOutput) {
+                this.jsonOutput.textContent = JSON.stringify(data, null, 2);
+            }
+
+        } catch (err) {
+            console.error(err);
+            alert("Erro ao processar edital");
+        }
     }
 }
+
+// INIT
+document.addEventListener('DOMContentLoaded', () => {
+    window.app = new StudyApp();
+});
