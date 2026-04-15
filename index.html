@@ -10,6 +10,7 @@
   <link rel="manifest" href="/manifest.json" />
   <link rel="icon" href="https://ui-avatars.com/api/?name=PF&background=001f3f&color=fff">
 
+  <link rel="stylesheet" href="/src/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 </head>
 
@@ -17,48 +18,51 @@
 
 <div id="app">
 
-  <!-- 🔥 HEADER -->
-  <header style="padding:10px; background:#001f3f; color:white;">
-    <h2>Projeto Federal</h2>
-  </header>
+  <div class="app-container">
 
-  <!-- 🔥 MENU -->
-  <nav style="padding:10px;">
-    <button onclick="showPage('dashboard')">Dashboard</button>
-    <button onclick="showPage('parser')">Importar Edital</button>
-  </nav>
+    <!-- SIDEBAR -->
+    <aside id="sidebar">
+      <h2>Projeto Federal</h2>
 
-  <!-- 🔥 PÁGINAS -->
-  <main style="padding:10px;">
+      <div class="nav-item active" data-page="dashboard">
+        <span>Dashboard</span>
+      </div>
 
-    <div id="dashboard-page" class="page">
-      <h3>Dashboard</h3>
-      <p>Bem-vindo ao sistema 🚀</p>
-    </div>
+      <div class="nav-item" data-page="parser">
+        <span>Importar Edital</span>
+      </div>
+    </aside>
 
-    <div id="parser-page" class="page" style="display:none;">
-      <h3>Parser</h3>
+    <!-- CONTEÚDO -->
+    <main>
 
-      <textarea id="editalText" style="width:100%; height:150px;"></textarea>
+      <h1 id="pageTitle">Dashboard</h1>
 
-      <br><br>
+      <!-- DASHBOARD -->
+      <div id="dashboard-page" class="page active">
+        <p>Bem-vindo ao sistema 🚀</p>
+      </div>
 
-      <button id="startParsingBtn">Processar</button>
+      <!-- PARSER -->
+      <div id="parser-page" class="page">
 
-      <pre id="jsonOutput"></pre>
-    </div>
+        <textarea id="editalText" placeholder="Cole o edital aqui"></textarea>
 
-  </main>
+        <br><br>
+
+        <button id="startParsingBtn">
+          Processar Edital
+        </button>
+
+        <pre id="jsonOutput"></pre>
+
+      </div>
+
+    </main>
+
+  </div>
 
 </div>
-
-<script>
-function showPage(page) {
-  document.getElementById('dashboard-page').style.display = 'none';
-  document.getElementById('parser-page').style.display = 'none';
-  document.getElementById(page + '-page').style.display = 'block';
-}
-</script>
 
 <script type="module" src="/src/main.js"></script>
 
