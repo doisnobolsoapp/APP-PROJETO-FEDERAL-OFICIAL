@@ -1,6 +1,5 @@
 import './style.css';
 
-// 🚀 Inicialização segura
 document.addEventListener("DOMContentLoaded", async () => {
   console.log("🚀 MAIN INICIADO");
 
@@ -8,16 +7,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     const app = document.getElementById('app');
 
     if (!app) {
-      console.error("❌ ERRO: #app não encontrada");
+      console.error("❌ ERRO CRÍTICO: div #app não encontrada");
       return;
     }
 
     console.log("✅ #app encontrada");
 
-    // ❌ REMOVIDO: NÃO APAGA O HTML
+    // ❌ REMOVA ISSO (NUNCA MAIS USE)
     // app.innerHTML = "";
 
-    // 🔥 Apenas importa o app
+    // ✅ IMPORTA APP SEM DESTRUIR HTML
     await import('./app.js');
 
     console.log("✅ app.js carregado com sucesso");
@@ -27,16 +26,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-
-// ✅ SERVICE WORKER
+// SW
 if ('serviceWorker' in navigator && location.hostname !== "localhost") {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js')
-      .then(registration => {
-        console.log('✅ SW registrado:', registration);
-      })
-      .catch(error => {
-        console.log('❌ Erro no SW:', error);
-      });
+      .then(reg => console.log('✅ SW registrado:', reg))
+      .catch(err => console.log('❌ Erro SW:', err));
   });
 }
