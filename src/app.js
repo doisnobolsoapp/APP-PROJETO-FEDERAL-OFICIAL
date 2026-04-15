@@ -126,6 +126,4 @@ class StudyApp {
 }
 
 // INIT
-document.addEventListener('DOMContentLoaded', () => {
-    window.app = new StudyApp();
-});
+window.app = new StudyApp();
