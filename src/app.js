@@ -2,11 +2,12 @@ class StudyApp {
   constructor() {
     console.log("🚀 App PRO iniciando...");
 
-    // ================= STORAGE =================
+    // STORAGE
     this.subjects = JSON.parse(localStorage.getItem('pf_subjects')) || [];
     this.history = JSON.parse(localStorage.getItem('pf_history')) || [];
     this.simulados = JSON.parse(localStorage.getItem('pf_simulados')) || [];
     this.contest = JSON.parse(localStorage.getItem('pf_contest')) || {};
+    this.planning = JSON.parse(localStorage.getItem('pf_planning')) || null;
 
     this.initElements();
     this.initEvents();
@@ -33,25 +34,15 @@ class StudyApp {
   initEvents() {
     this.navItems.forEach(item => {
       item.addEventListener('click', () => {
-        const page = item.dataset.page;
-        this.navigate(page);
+        this.navigate(item.dataset.page);
       });
     });
 
-    const btnParse = document.getElementById('startParsingBtn');
-    if (btnParse) btnParse.onclick = () => this.parseEdital();
-
-    const btnNew = document.getElementById('newSubjectBtn');
-    if (btnNew) btnNew.onclick = () => this.addSubject();
-
-    const btnPlan = document.getElementById('generatePlanningBtn');
-    if (btnPlan) btnPlan.onclick = () => this.generatePlanning();
-
-    const btnMock = document.getElementById('addMockBtn');
-    if (btnMock) btnMock.onclick = () => this.addMock();
-
-    const btnContest = document.getElementById('saveContestBtn');
-    if (btnContest) btnContest.onclick = () => this.saveContest();
+    document.getElementById('startParsingBtn')?.addEventListener('click', () => this.parseEdital());
+    document.getElementById('newSubjectBtn')?.addEventListener('click', () => this.addSubject());
+    document.getElementById('generatePlanningBtn')?.addEventListener('click', () => this.generatePlanning());
+    document.getElementById('addMockBtn')?.addEventListener('click', () => this.addMock());
+    document.getElementById('saveContestBtn')?.addEventListener('click', () => this.saveContest());
   }
 
   // ================= NAVEGAÇÃO =================
@@ -62,8 +53,7 @@ class StudyApp {
 
     this.pages.forEach(p => p.classList.remove('active'));
 
-    const target = document.getElementById(page + '-page');
-    if (target) target.classList.add('active');
+    document.getElementById(page + '-page')?.classList.add('active');
 
     const titles = {
       dashboard: "Dashboard",
@@ -79,27 +69,19 @@ class StudyApp {
     }
   }
 
-  // ================= PARSER (PRO) =================
+  // ================= PARSER =================
   parseEdital() {
     const text = this.editalText?.value?.trim();
-    if (!text) {
-      alert("Cole o edital");
-      return;
-    }
+    if (!text) return alert("Cole o edital");
 
     const linhas = text.split('\n');
     const disciplinas = [];
     let atual = null;
 
-    const generateId = () => {
-      if (typeof crypto !== "undefined" && crypto.randomUUID) {
-        return crypto.randomUUID();
-      }
-      return 'id-' + Date.now() + '-' + Math.floor(Math.random() * 100000);
-    };
+    const generateId = () => 'id-' + Date.now() + '-' + Math.random();
 
-    linhas.forEach(raw => {
-      let linha = raw.trim();
+    linhas.forEach(linha => {
+      linha = linha.trim();
       if (!linha) return;
 
       const match = linha.match(/^\d*\.?\s*([A-ZÇÃÕÉÍÓÚ\s]+):/);
@@ -113,22 +95,19 @@ class StudyApp {
           content: linha.replace(match[0], '').trim(),
           progress: 0
         };
-
       } else if (atual) {
-        atual.content += (atual.content ? ' ' : '') + linha;
+        atual.content += " " + linha;
       }
     });
 
     if (atual) disciplinas.push(atual);
 
-    this.subjects = disciplinas.length > 0
-      ? disciplinas
-      : [{
-          id: generateId(),
-          title: "Conteúdo Geral",
-          content: text,
-          progress: 0
-        }];
+    this.subjects = disciplinas.length ? disciplinas : [{
+      id: generateId(),
+      title: "Conteúdo Geral",
+      content: text,
+      progress: 0
+    }];
 
     this.save();
     this.renderSubjects();
@@ -160,10 +139,8 @@ class StudyApp {
     this.subjectsGrid.innerHTML = this.subjects.map(s => `
       <div class="card">
         <h3>${s.title}</h3>
-        <p style="font-size:12px;color:#666;">
-          ${(s.content || "").substring(0, 150)}...
-        </p>
-        <p><strong>Progresso:</strong> ${s.progress}%</p>
+        <p>${(s.content || "").substring(0, 100)}...</p>
+        <p><strong>${s.progress}%</strong></p>
         <button onclick="app.study('${s.id}')">Estudar</button>
       </div>
     `).join('');
@@ -184,35 +161,79 @@ class StudyApp {
     this.renderAll();
   }
 
-  // ================= PLANEJAMENTO =================
+  // ================= PLANEJAMENTO PRO =================
   generatePlanning() {
-    if (!this.planningContainer) return;
+    if (!this.subjects.length) {
+      alert("Importe disciplinas primeiro");
+      return;
+    }
 
-    const plano = this.subjects.map((s, i) =>
-      `Dia ${i + 1}: ${s.title}`
-    );
+    const tarefas = [];
+    let ciclo = 1;
 
-    this.planningContainer.innerHTML = plano
-      .map(p => `<div class="card">${p}</div>`)
-      .join('');
+    this.subjects.forEach((s, i) => {
+      // TEORIA
+      tarefas.push(this.createTask(ciclo++, s.title, "teoria", 60));
+
+      // QUESTÕES
+      tarefas.push(this.createTask(ciclo++, s.title, "questoes", 45));
+
+      // REVISÃO 24H
+      tarefas.push(this.createTask(ciclo++, s.title, "revisao", 30, "Revisão 24h"));
+
+      // REVISÃO 7 DIAS
+      tarefas.push(this.createTask(ciclo++, s.title, "revisao", 30, "Revisão 7 dias"));
+    });
+
+    this.planning = {
+      tipo: "ciclo_estudos",
+      duracao_ciclo: `${tarefas.length} tarefas`,
+      total_tarefas: tarefas.length,
+      tarefas
+    };
+
+    localStorage.setItem('pf_planning', JSON.stringify(this.planning));
+
+    this.renderPlanning();
+  }
+
+  createTask(ciclo, disciplina, formato, tempo, extra = "") {
+    return {
+      ciclo,
+      disciplina,
+      formato,
+      descricao: `${disciplina} - ${formato} ${extra}`,
+      tempo_previsto_minutos: tempo,
+      tempo_estudado_minutos: 0,
+      desempenho_percentual: 0,
+      status: "pendente"
+    };
+  }
+
+  renderPlanning() {
+    if (!this.planningContainer || !this.planning) return;
+
+    this.planningContainer.innerHTML = this.planning.tarefas.map(t => `
+      <div class="card">
+        <strong>${t.disciplina}</strong>
+        <p>${t.formato.toUpperCase()}</p>
+        <p>${t.descricao}</p>
+        <p>${t.tempo_previsto_minutos} min</p>
+      </div>
+    `).join('');
   }
 
   // ================= SIMULADOS =================
   addMock() {
-    const nome = prompt("Nome do simulado:");
-    const total = Number(prompt("Total de questões:"));
+    const nome = prompt("Nome:");
+    const total = Number(prompt("Total:"));
     const acertos = Number(prompt("Acertos:"));
 
     if (!nome || !total) return;
 
     const percent = ((acertos / total) * 100).toFixed(1);
 
-    this.simulados.push({
-      nome,
-      total,
-      acertos,
-      percent
-    });
+    this.simulados.push({ nome, total, acertos, percent });
 
     this.save();
     this.renderMocks();
@@ -225,8 +246,6 @@ class StudyApp {
       <tr>
         <td>${new Date().toLocaleDateString()}</td>
         <td>${m.nome}</td>
-        <td>${m.total}</td>
-        <td>${m.acertos}</td>
         <td>${m.percent}%</td>
       </tr>
     `).join('');
@@ -253,10 +272,10 @@ class StudyApp {
     el.innerHTML = `
       <div class="card">
         <h3>${this.contest.nome}</h3>
-        <p><strong>Cargo:</strong> ${this.contest.cargo}</p>
-        <p><strong>Órgão:</strong> ${this.contest.orgao}</p>
-        <p><strong>Banca:</strong> ${this.contest.banca}</p>
-        <p><strong>Prova:</strong> ${this.contest.data}</p>
+        <p>${this.contest.cargo}</p>
+        <p>${this.contest.orgao}</p>
+        <p>${this.contest.banca}</p>
+        <p>${this.contest.data}</p>
       </div>
     `;
   }
@@ -269,11 +288,8 @@ class StudyApp {
       ? (this.simulados.reduce((a, b) => a + Number(b.percent), 0) / this.simulados.length).toFixed(1)
       : 0;
 
-    const t = document.getElementById('totalStudyTime');
-    const p = document.getElementById('overallPerformance');
-
-    if (t) t.innerText = totalStudy + ' min';
-    if (p) p.innerText = performance + '%';
+    document.getElementById('totalStudyTime') && (document.getElementById('totalStudyTime').innerText = totalStudy + ' min');
+    document.getElementById('overallPerformance') && (document.getElementById('overallPerformance').innerText = performance + '%');
   }
 
   // ================= SAVE =================
@@ -288,6 +304,7 @@ class StudyApp {
     this.renderSubjects();
     this.renderMocks();
     this.renderDashboard();
+    this.renderPlanning();
     this.renderContest();
     this.navigate('dashboard');
   }
