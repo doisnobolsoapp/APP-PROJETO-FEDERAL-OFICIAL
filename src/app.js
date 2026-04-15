@@ -1,129 +1,141 @@
 class StudyApp {
-    constructor() {
-        console.log("🚀 App inicializando...");
+  constructor() {
+    this.subjects = JSON.parse(localStorage.getItem('subjects')) || [];
+    this.simulados = JSON.parse(localStorage.getItem('simulados')) || [];
+    this.history = JSON.parse(localStorage.getItem('history')) || [];
 
-        this.subjects = JSON.parse(localStorage.getItem('pf_subjects')) || [];
-        this.history = JSON.parse(localStorage.getItem('pf_history')) || [];
+    this.init();
+  }
 
-        this.initElements();
-        this.initEventListeners();
+  init() {
+    this.bindEvents();
+    this.renderAll();
+  }
 
-        // 🔥 GARANTE QUE O DOM ESTÁ PRONTO
-        setTimeout(() => {
-            this.renderAll();
-        }, 0);
+  bindEvents() {
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.onclick = () => this.navigate(item.dataset.page);
+    });
 
-        console.log("✅ App pronto");
-    }
+    document.getElementById('startParsingBtn')?.onclick = () => this.parse();
+    document.getElementById('newSubjectBtn')?.onclick = () => this.addSubject();
+    document.getElementById('generatePlanningBtn')?.onclick = () => this.generatePlanning();
+    document.getElementById('addMockBtn')?.onclick = () => this.addMock();
+  }
 
-    initElements() {
-        this.navItems = document.querySelectorAll('.nav-item');
-        this.pages = document.querySelectorAll('.page');
-        this.pageTitle = document.getElementById('pageTitle');
+  navigate(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(page + '-page')?.classList.add('active');
 
-        this.editalText = document.getElementById('editalText');
-        this.startParsingBtn = document.getElementById('startParsingBtn');
-        this.jsonOutput = document.getElementById('jsonOutput');
+    document.querySelectorAll('.nav-item').forEach(i =>
+      i.classList.toggle('active', i.dataset.page === page)
+    );
+  }
 
-        console.log("📦 Pages encontradas:", this.pages.length);
-    }
+  parse() {
+    const text = document.getElementById('editalText').value;
+    const disciplinas = text.split(/\n|,/).filter(x => x.length > 3);
 
-    initEventListeners() {
-        console.log("🎯 Eventos iniciados");
+    this.subjects = disciplinas.map(d => ({
+      id: Date.now() + Math.random(),
+      name: d,
+      progress: 0
+    }));
 
-        this.navItems.forEach(item => {
-            item.addEventListener('click', () => {
-                const pageId = item.getAttribute('data-page');
-                this.navigateTo(pageId);
-            });
-        });
+    this.save();
+    this.renderSubjects();
+  }
 
-        if (this.startParsingBtn) {
-            this.startParsingBtn.addEventListener('click', () => {
-                this.handleParsing();
-            });
-        }
-    }
+  addSubject() {
+    const name = prompt("Disciplina:");
+    if (!name) return;
 
-    navigateTo(pageId) {
-        console.log("➡️ Navegando para:", pageId);
+    this.subjects.push({ id: Date.now(), name, progress: 0 });
+    this.save();
+    this.renderSubjects();
+  }
 
-        // 🔥 ATIVA MENU
-        this.navItems.forEach(item => {
-            item.classList.toggle(
-                'active',
-                item.getAttribute('data-page') === pageId
-            );
-        });
+  renderSubjects() {
+    const el = document.getElementById('subjectsGrid');
+    if (!el) return;
 
-        // 🔥 ESCONDE TODAS
-        this.pages.forEach(page => {
-            page.classList.remove('active');
-        });
+    el.innerHTML = this.subjects.map(s => `
+      <div class="subject-card">
+        <strong>${s.name}</strong>
+        <br>
+        ${s.progress}%
+        <br>
+        <button onclick="app.study(${s.id})">+10%</button>
+      </div>
+    `).join('');
+  }
 
-        // 🔥 MOSTRA A CERTA
-        const activePage = document.getElementById(`${pageId}-page`);
-        if (activePage) {
-            activePage.classList.add('active');
-        } else {
-            console.warn("⚠️ Página não encontrada:", pageId);
-        }
+  study(id) {
+    const s = this.subjects.find(x => x.id == id);
+    if (!s) return;
 
-        // 🔥 TÍTULO DINÂMICO
-        if (this.pageTitle) {
-            const titles = {
-                dashboard: "Dashboard",
-                parser: "Importar Edital"
-            };
+    s.progress = Math.min(100, s.progress + 10);
+    this.history.push({ date: new Date() });
 
-            this.pageTitle.textContent = titles[pageId] || "Projeto Federal";
-        }
-    }
+    this.save();
+    this.renderAll();
+  }
 
-    renderAll() {
-        console.log("🎯 Render inicial");
-        this.navigateTo('dashboard');
-    }
+  generatePlanning() {
+    const el = document.getElementById('planningContainer');
 
-    // 🔥 PARSER LOCAL (SEM API)
-    handleParsing() {
-        const text = this.editalText?.value?.trim();
+    el.innerHTML = this.subjects.map((s,i) =>
+      `<div class="card">Dia ${i+1}: ${s.name}</div>`
+    ).join('');
+  }
 
-        if (!text) {
-            alert("Cole o edital primeiro");
-            return;
-        }
+  addMock() {
+    const nome = prompt("Nome:");
+    const score = prompt("%:");
 
-        try {
-            const disciplinas = text
-                .split(/\n|,|;/)
-                .map(l => l.trim())
-                .filter(l => l.length > 3);
+    this.simulados.push({ nome, score, date: new Date().toLocaleDateString() });
+    this.save();
+    this.renderMocks();
+  }
 
-            const resultado = {
-                verticalizado: disciplinas.map((d, i) => ({
-                    disciplina: d,
-                    topicos: [
-                        {
-                            id: String(i + 1),
-                            descricao: "Tópico geral"
-                        }
-                    ]
-                }))
-            };
+  renderMocks() {
+    const el = document.getElementById('mockExamsTableBody');
+    if (!el) return;
 
-            if (this.jsonOutput) {
-                this.jsonOutput.textContent = JSON.stringify(resultado, null, 2);
-            }
+    el.innerHTML = this.simulados.map(m => `
+      <tr>
+        <td>${m.date}</td>
+        <td>${m.nome}</td>
+        <td>${m.score}%</td>
+      </tr>
+    `).join('');
+  }
 
-            console.log("✅ Edital processado:", resultado);
+  renderDashboard() {
+    document.getElementById('totalStudyTime').innerText =
+      this.history.length * 30 + " min";
 
-        } catch (err) {
-            console.error(err);
-            alert("Erro ao processar edital");
-        }
-    }
+    const avg = this.simulados.length
+      ? this.simulados.reduce((a,b)=>a+Number(b.score),0)/this.simulados.length
+      : 0;
+
+    document.getElementById('overallPerformance').innerText =
+      avg.toFixed(1) + "%";
+  }
+
+  renderAll() {
+    this.renderSubjects();
+    this.renderMocks();
+    this.renderDashboard();
+  }
+
+  save() {
+    localStorage.setItem('subjects', JSON.stringify(this.subjects));
+    localStorage.setItem('simulados', JSON.stringify(this.simulados));
+    localStorage.setItem('history', JSON.stringify(this.history));
+  }
 }
 
-// INIT
-window.app = new StudyApp();
+window.addEventListener('DOMContentLoaded', () => {
+  window.app = new StudyApp();
+});
