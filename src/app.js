@@ -7,7 +7,11 @@ class StudyApp {
 
         this.initElements();
         this.initEventListeners();
-        this.renderAll();
+
+        // 🔥 GARANTE QUE O DOM ESTÁ PRONTO
+        setTimeout(() => {
+            this.renderAll();
+        }, 0);
 
         console.log("✅ App pronto");
     }
@@ -44,7 +48,7 @@ class StudyApp {
     navigateTo(pageId) {
         console.log("➡️ Navegando para:", pageId);
 
-        // menu ativo
+        // 🔥 ATIVA MENU
         this.navItems.forEach(item => {
             item.classList.toggle(
                 'active',
@@ -52,17 +56,20 @@ class StudyApp {
             );
         });
 
-        // páginas (AGORA FUNCIONA)
+        // 🔥 ESCONDE TODAS
         this.pages.forEach(page => {
             page.classList.remove('active');
         });
 
+        // 🔥 MOSTRA A CERTA
         const activePage = document.getElementById(`${pageId}-page`);
         if (activePage) {
             activePage.classList.add('active');
+        } else {
+            console.warn("⚠️ Página não encontrada:", pageId);
         }
 
-        // título
+        // 🔥 TÍTULO DINÂMICO
         if (this.pageTitle) {
             const titles = {
                 dashboard: "Dashboard",
@@ -74,9 +81,11 @@ class StudyApp {
     }
 
     renderAll() {
+        console.log("🎯 Render inicial");
         this.navigateTo('dashboard');
     }
 
+    // 🔥 PARSER LOCAL (SEM API)
     handleParsing() {
         const text = this.editalText?.value?.trim();
 
