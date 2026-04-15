@@ -59,13 +59,19 @@ main {
   margin-bottom: 20px;
 }
 
-/* PÁGINAS */
+/* 🔥 CORREÇÃO PRINCIPAL */
 .page {
   display: none;
 }
 
+/* USADO PELO JS */
 .page.active {
   display: block;
+}
+
+/* 🔥 SUPORTE EXTRA (caso use hidden) */
+.hidden {
+  display: none !important;
 }
 
 /* TEXTAREA */
@@ -74,6 +80,8 @@ textarea {
   height: 150px;
   padding: 10px;
   margin-bottom: 15px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
 }
 
 /* BOTÃO */
@@ -97,6 +105,7 @@ pre {
   padding: 10px;
   margin-top: 15px;
   overflow-x: auto;
+  border-radius: 6px;
 }
 
 /* RESPONSIVO */
