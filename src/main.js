@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     const app = document.getElementById('app');
 
-    // ❌ ERRO CRÍTICO
     if (!app) {
       console.error("❌ ERRO CRÍTICO: div #app não encontrada");
       document.body.innerHTML = "<h1 style='color:red;text-align:center;margin-top:50px;'>Erro: #app não encontrada</h1>";
@@ -16,8 +15,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     console.log("✅ #app encontrada");
 
-    // 🔥 Limpa conteúdo inicial (loading)
-    app.innerHTML = "";
+    // ❌ REMOVIDO: NÃO LIMPAR O HTML
+    // app.innerHTML = "";
 
     // 🔥 Importa app principal
     await import('./app.js');
@@ -27,17 +26,19 @@ document.addEventListener("DOMContentLoaded", async () => {
   } catch (error) {
     console.error("❌ ERRO ao carregar app.js:", error);
 
-    document.getElementById('app').innerHTML = `
-      <div style="text-align:center; margin-top:50px;">
-        <h1>Erro ao iniciar aplicação</h1>
-        <p>Verifique o console</p>
-      </div>
-    `;
+    const app = document.getElementById('app');
+    if (app) {
+      app.innerHTML = `
+        <div style="text-align:center; margin-top:50px;">
+          <h1>Erro ao iniciar aplicação</h1>
+          <p>Verifique o console</p>
+        </div>
+      `;
+    }
   }
 });
 
-
-// ✅ SERVICE WORKER CONTROLADO (produção apenas)
+// ✅ SERVICE WORKER CONTROLADO
 if ('serviceWorker' in navigator && location.hostname !== "localhost") {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js')
