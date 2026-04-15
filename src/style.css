@@ -1,110 +1,111 @@
-class StudyApp {
-    constructor() {
-        console.log("🚀 App inicializando...");
-
-        this.subjects = JSON.parse(localStorage.getItem('pf_subjects')) || [];
-        this.history = JSON.parse(localStorage.getItem('pf_history')) || [];
-
-        this.initElements();
-        this.initEventListeners();
-        this.renderAll();
-
-        console.log("✅ App pronto");
-    }
-
-    initElements() {
-        this.navItems = document.querySelectorAll('.nav-item');
-        this.pages = document.querySelectorAll('.page');
-        this.pageTitle = document.getElementById('pageTitle');
-
-        this.editalText = document.getElementById('editalText');
-        this.startParsingBtn = document.getElementById('startParsingBtn');
-        this.jsonOutput = document.getElementById('jsonOutput');
-    }
-
-    initEventListeners() {
-        console.log("🎯 Eventos iniciados");
-
-        this.navItems.forEach(item => {
-            item.addEventListener('click', () => {
-                const pageId = item.getAttribute('data-page');
-                this.navigateTo(pageId);
-            });
-        });
-
-        if (this.startParsingBtn) {
-            this.startParsingBtn.addEventListener('click', () => {
-                this.handleParsing();
-            });
-        }
-    }
-
-    // 🔥 CORREÇÃO PRINCIPAL AQUI
-    navigateTo(pageId) {
-        console.log("➡️ Navegando para:", pageId);
-
-        // ativa menu
-        this.navItems.forEach(item => {
-            item.classList.toggle(
-                'active',
-                item.getAttribute('data-page') === pageId
-            );
-        });
-
-        // mostra/esconde páginas (SEM QUEBRAR CSS)
-        this.pages.forEach(page => {
-            if (page.id === `${pageId}-page`) {
-                page.classList.remove('hidden');
-            } else {
-                page.classList.add('hidden');
-            }
-        });
-
-        // título
-        if (this.pageTitle) {
-            this.pageTitle.textContent =
-                pageId === 'parser'
-                    ? 'Importar Edital'
-                    : 'Dashboard';
-        }
-    }
-
-    renderAll() {
-        this.navigateTo('dashboard');
-    }
-
-    async handleParsing() {
-        const text = this.editalText?.value?.trim();
-
-        if (!text) {
-            alert("Cole o edital primeiro");
-            return;
-        }
-
-        try {
-            const res = await fetch('/api/parse-edital', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    text,
-                    metadata: { cargo: "Teste" }
-                })
-            });
-
-            const data = await res.json();
-
-            if (this.jsonOutput) {
-                this.jsonOutput.textContent = JSON.stringify(data, null, 2);
-            }
-
-        } catch (err) {
-            console.error(err);
-            alert("Erro ao processar edital");
-        }
-    }
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-// INIT
-document.addEventListener('DOMContentLoaded', () => {
-    window.app = new StudyApp();
-});
+/* BODY */
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f6f9;
+  color: #333;
+}
+
+/* CONTAINER PRINCIPAL */
+.app-container {
+  display: flex;
+  height: 100vh;
+}
+
+/* SIDEBAR */
+#sidebar {
+  width: 220px;
+  background: #001f3f;
+  color: #fff;
+  padding: 20px;
+  flex-shrink: 0;
+}
+
+#sidebar h2 {
+  margin-bottom: 20px;
+}
+
+.nav-item {
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  transition: 0.2s;
+}
+
+.nav-item:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.nav-item.active {
+  background: #0074D9;
+}
+
+/* MAIN */
+main {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+/* TITULO */
+#pageTitle {
+  margin-bottom: 20px;
+}
+
+/* PÁGINAS */
+.page {
+  display: none;
+}
+
+.page.active {
+  display: block;
+}
+
+/* TEXTAREA */
+textarea {
+  width: 100%;
+  height: 150px;
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+/* BOTÃO */
+button {
+  background: #0074D9;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+button:hover {
+  background: #005fa3;
+}
+
+/* JSON OUTPUT */
+pre {
+  background: #111;
+  color: #0f0;
+  padding: 10px;
+  margin-top: 15px;
+  overflow-x: auto;
+}
+
+/* RESPONSIVO */
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+
+  #sidebar {
+    width: 100%;
+  }
+}
