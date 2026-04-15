@@ -1,149 +1,106 @@
 class StudyApp {
   constructor() {
     this.subjects = JSON.parse(localStorage.getItem('pf_subjects')) || [];
-    this.planning = JSON.parse(localStorage.getItem('pf_planning')) || null;
+    this.planning = JSON.parse(localStorage.getItem('pf_planning')) || [];
+    this.simulados = JSON.parse(localStorage.getItem('pf_simulados')) || [];
+    this.history = [];
 
-    this.initElements();
-    this.initEvents();
+    this.init();
+  }
+
+  init() {
+    document.querySelectorAll('.nav-item').forEach(btn => {
+      btn.onclick = () => this.navigate(btn.dataset.page);
+    });
+
+    document.getElementById('generatePlanningBtn').onclick = () => this.generatePlanning();
+
     this.renderAll();
   }
 
-  initElements() {
-    this.planningContainer = document.getElementById('planningContainer');
+  navigate(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(page + '-page').classList.add('active');
   }
 
-  initEvents() {
-    document.getElementById('generatePlanningBtn')
-      ?.addEventListener('click', () => this.generatePlanning());
-  }
-
-  // ================= CICLO INTELIGENTE =================
+  // 🔥 CICLO INTELIGENTE
   generatePlanning() {
-    if (!this.subjects.length) {
-      alert("Importe disciplinas primeiro");
-      return;
-    }
+    let tarefas = [];
+    let ordem = [...this.subjects];
 
-    const tarefas = [];
-    let numero = 1;
+    let i = 1;
 
-    const formatos = [
-      { tipo: "Teórico e Exercícios", tempo: 60 },
-      { tipo: "Exercícios", tempo: 45 },
-      { tipo: "Revisão", tempo: 30 }
-    ];
+    ordem.forEach(s => {
+      tarefas.push(this.task(i++, s.title, "Teórico", 60));
+      tarefas.push(this.task(i++, s.title, "Questões", 45));
+      tarefas.push(this.task(i++, s.title, "Revisão", 30));
+    });
 
-    // 🔥 INTERCALAÇÃO INTELIGENTE
-    for (let rodada = 0; rodada < 3; rodada++) {
-      this.subjects.forEach((disciplina) => {
-
-        const formato = formatos[rodada];
-
-        tarefas.push({
-          id: Date.now() + Math.random(),
-          numero: numero++,
-          disciplina: disciplina.title,
-          formato: formato.tipo,
-          descricao: `${disciplina.title} - ${formato.tipo}`,
-          tempo_previsto_minutos: formato.tempo,
-          tempo_estudado_minutos: 0,
-          desempenho_percentual: 0,
-          status: "pendente",
-          data: new Date().toISOString()
-        });
-
-      });
-    }
-
-    this.planning = { tarefas };
-
-    localStorage.setItem('pf_planning', JSON.stringify(this.planning));
+    this.planning = tarefas;
+    localStorage.setItem('pf_planning', JSON.stringify(tarefas));
 
     this.renderPlanning();
   }
 
-  // ================= AÇÃO DE ESTUDO =================
-  concluirTarefa(id) {
-    const tarefa = this.planning.tarefas.find(t => t.id == id);
-    if (!tarefa) return;
-
-    tarefa.status = "concluido";
-    tarefa.tempo_estudado_minutos = tarefa.tempo_previsto_minutos;
-
-    // simulação desempenho
-    tarefa.desempenho_percentual = Math.floor(Math.random() * 41) + 60;
-
-    // 🔥 REORGANIZAÇÃO INTELIGENTE (NEUROCIÊNCIA)
-    this.reordenarCiclo(tarefa.disciplina);
-
-    localStorage.setItem('pf_planning', JSON.stringify(this.planning));
-
-    this.renderPlanning();
+  task(n, disc, tipo, tempo) {
+    return {
+      numero: n,
+      disciplina: disc,
+      formato: tipo,
+      descricao: `${disc} - ${tipo}`,
+      tempo,
+      desempenho: 0,
+      status: "pendente"
+    };
   }
 
-  // ================= REORGANIZAÇÃO DO CICLO =================
-  reordenarCiclo(disciplina) {
-    const tarefas = this.planning.tarefas;
-
-    // remove próximas tarefas da mesma disciplina
-    const restantes = tarefas.filter(t => t.disciplina !== disciplina || t.status === "concluido");
-
-    const futuras = tarefas.filter(t => t.disciplina === disciplina && t.status === "pendente");
-
-    // joga para o final (efeito de espaçamento)
-    this.planning.tarefas = [...restantes, ...futuras];
-
-    // reindexa
-    this.planning.tarefas.forEach((t, i) => t.numero = i + 1);
-  }
-
-  // ================= RENDER =================
+  // 🔥 TABELA INTERATIVA
   renderPlanning() {
-    if (!this.planningContainer || !this.planning) return;
+    const tbody = document.getElementById('planningTable');
+    if (!tbody) return;
 
-    this.planningContainer.innerHTML = `
-      <table class="planning-table">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Disciplina</th>
-            <th>Formato</th>
-            <th>Descrição</th>
-            <th>Tempo</th>
-            <th>Desempenho</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${this.planning.tarefas.map(t => `
-            <tr onclick="app.concluirTarefa('${t.id}')">
-              <td>${t.numero}</td>
-              <td>${t.disciplina}</td>
-              <td>${t.formato}</td>
-              <td>${t.descricao}</td>
-              <td>${this.formatTime(t.tempo_previsto_minutos)}</td>
-              <td class="perf">${t.desempenho_percentual}%</td>
-              <td>
-                <span class="status ${t.status}">
-                  ${t.status}
-                </span>
-              </td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
-    `;
+    tbody.innerHTML = this.planning.map(t => `
+      <tr onclick="app.toggleTask(${t.numero})">
+        <td>${t.numero}</td>
+        <td>${t.disciplina}</td>
+        <td>${t.formato}</td>
+        <td>${t.descricao}</td>
+        <td>${t.tempo} min</td>
+        <td>${t.desempenho}%</td>
+        <td>
+          <span class="status ${t.status === 'pendente' ? 'pendente' : 'concluido'}">
+            ${t.status}
+          </span>
+        </td>
+      </tr>
+    `).join('');
   }
 
-  formatTime(min) {
-    const h = String(Math.floor(min / 60)).padStart(2, '0');
-    const m = String(min % 60).padStart(2, '0');
-    return `${h}:${m}`;
+  toggleTask(num) {
+    const t = this.planning.find(x => x.numero === num);
+    if (!t) return;
+
+    t.status = t.status === "pendente" ? "concluido" : "pendente";
+    t.desempenho = t.status === "concluido" ? 80 : 0;
+
+    localStorage.setItem('pf_planning', JSON.stringify(this.planning));
+    this.renderPlanning();
+    this.renderDashboard();
+  }
+
+  // DASHBOARD
+  renderDashboard() {
+    const total = this.planning.filter(t => t.status === "concluido").length;
+    const percent = this.planning.length ? Math.round((total / this.planning.length) * 100) : 0;
+
+    document.getElementById('progressFill').style.width = percent + '%';
+    document.getElementById('progressPercent').innerText = percent + '%';
   }
 
   renderAll() {
     this.renderPlanning();
+    this.renderDashboard();
   }
 }
 
-window.onload = () => window.app = new StudyApp();
+window.app = new StudyApp();
