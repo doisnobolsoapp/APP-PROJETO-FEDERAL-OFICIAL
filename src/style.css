@@ -7,35 +7,43 @@
 
 /* BODY */
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Arial, sans-serif;
   background: #f4f6f9;
   color: #333;
 }
 
-/* CONTAINER PRINCIPAL */
+/* LAYOUT */
 .app-container {
   display: flex;
   height: 100vh;
+  overflow: hidden;
 }
 
 /* SIDEBAR */
-#sidebar {
-  width: 220px;
+.sidebar {
+  width: 250px;
   background: #001f3f;
   color: #fff;
-  padding: 20px;
-  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-#sidebar h2 {
-  margin-bottom: 20px;
+.sidebar-header {
+  padding: 20px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.sidebar-nav ul {
+  list-style: none;
 }
 
 .nav-item {
-  padding: 10px;
+  padding: 12px 20px;
   cursor: pointer;
-  border-radius: 6px;
-  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   transition: 0.2s;
 }
 
@@ -48,30 +56,36 @@ body {
 }
 
 /* MAIN */
-main {
+.main-content {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* TOP NAV */
+.top-navbar {
+  background: #fff;
+  padding: 15px 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+#pageTitle {
+  font-size: 20px;
+}
+
+/* CONTENT */
+.content-wrapper {
   padding: 20px;
   overflow-y: auto;
 }
 
-/* TITULO */
-#pageTitle {
-  margin-bottom: 20px;
-}
-
-/* 🔥 CORREÇÃO PRINCIPAL */
+/* PAGES */
 .page {
   display: none;
 }
 
-/* USADO PELO JS */
 .page.active {
   display: block;
-}
-
-/* 🔥 SUPORTE EXTRA (caso use hidden) */
-.hidden {
-  display: none !important;
 }
 
 /* TEXTAREA */
@@ -79,33 +93,92 @@ textarea {
   width: 100%;
   height: 150px;
   padding: 10px;
-  margin-bottom: 15px;
   border-radius: 6px;
   border: 1px solid #ccc;
+  margin-bottom: 10px;
 }
 
-/* BOTÃO */
+/* BUTTON */
 button {
   background: #0074D9;
-  color: white;
+  color: #fff;
   border: none;
   padding: 10px 15px;
-  cursor: pointer;
   border-radius: 6px;
+  cursor: pointer;
 }
 
 button:hover {
   background: #005fa3;
 }
 
-/* JSON OUTPUT */
+/* CARDS */
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+/* DASHBOARD GRID */
+.dashboard-top {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+}
+
+.stat-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+}
+
+.card-icon.blue { background: #0074D9; }
+.card-icon.green { background: #2ecc71; }
+.card-icon.purple { background: #9b59b6; }
+
+/* TABLE */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+th {
+  background: #f1f1f1;
+  text-align: left;
+}
+
+/* EMPTY STATE */
+.empty-state {
+  text-align: center;
+  padding: 20px;
+  color: #888;
+}
+
+/* JSON */
 pre {
   background: #111;
   color: #0f0;
   padding: 10px;
-  margin-top: 15px;
-  overflow-x: auto;
   border-radius: 6px;
+  overflow-x: auto;
 }
 
 /* RESPONSIVO */
@@ -114,7 +187,11 @@ pre {
     flex-direction: column;
   }
 
-  #sidebar {
+  .sidebar {
     width: 100%;
+  }
+
+  .dashboard-top {
+    flex-direction: column;
   }
 }
