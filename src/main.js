@@ -13,10 +13,10 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     console.log("✅ #app encontrada");
 
-    // ❌ REMOVA ISSO (NUNCA MAIS USE)
-    // app.innerHTML = "";
+    // ❌ NÃO LIMPA MAIS O HTML
+    // app.innerHTML = "";  ← REMOVIDO
 
-    // ✅ IMPORTA APP SEM DESTRUIR HTML
+    // 🔥 apenas carrega o app.js
     await import('./app.js');
 
     console.log("✅ app.js carregado com sucesso");
@@ -26,11 +26,16 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-// SW
+
+// SERVICE WORKER
 if ('serviceWorker' in navigator && location.hostname !== "localhost") {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js')
-      .then(reg => console.log('✅ SW registrado:', reg))
-      .catch(err => console.log('❌ Erro SW:', err));
+      .then(registration => {
+        console.log('✅ SW registrado:', registration);
+      })
+      .catch(error => {
+        console.log('❌ Erro no SW:', error);
+      });
   });
 }
