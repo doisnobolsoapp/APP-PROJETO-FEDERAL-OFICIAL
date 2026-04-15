@@ -1,154 +1,197 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Projeto Federal PRO</title>
+// 🚀 PROJETO FEDERAL - VERSÃO PRO COMPLETA
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+class StudyApp {
+  constructor() {
+    console.log("🚀 App PRO iniciando...");
 
-<style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
-body{display:flex;height:100vh;background:#f5f7fb}
+    // 🔥 STORAGE
+    this.subjects = JSON.parse(localStorage.getItem('pf_subjects')) || [];
+    this.history = JSON.parse(localStorage.getItem('pf_history')) || [];
+    this.simulados = JSON.parse(localStorage.getItem('pf_simulados')) || [];
 
-/* SIDEBAR */
-.sidebar{width:260px;background:#0b1e3a;color:#fff;padding:20px}
-.sidebar h2{margin-bottom:20px}
-.nav-item{padding:12px;border-radius:8px;cursor:pointer;margin-bottom:10px}
-.nav-item:hover{background:#1c3b6b}
-.nav-item.active{background:#0074D9}
+    this.initElements();
+    this.initEvents();
+    this.renderAll();
 
-/* MAIN */
-.main{flex:1;padding:20px;overflow:auto}
-.header{display:flex;justify-content:space-between;margin-bottom:20px}
+    console.log("✅ App PRO pronto");
+  }
 
-.card{background:#fff;padding:20px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,0.1);margin-bottom:20px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+  // ================= ELEMENTOS =================
+  initElements() {
+    this.navItems = document.querySelectorAll('.nav-item');
+    this.pages = document.querySelectorAll('.page');
+    this.pageTitle = document.getElementById('pageTitle');
 
-.page{display:none}
-.page.active{display:block}
+    this.editalText = document.getElementById('editalText');
+    this.jsonOutput = document.getElementById('jsonOutput');
 
-button{background:#0074D9;color:#fff;border:none;padding:10px;border-radius:6px;cursor:pointer}
+    this.subjectsGrid = document.getElementById('subjectsGrid');
+    this.planningContainer = document.getElementById('planningContainer');
+    this.mockTable = document.getElementById('mockExamsTableBody');
+  }
 
-textarea,input{width:100%;padding:10px;margin-top:10px;border-radius:6px;border:1px solid #ccc}
-</style>
-</head>
-<body>
+  // ================= EVENTOS =================
+  initEvents() {
+    this.navItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const page = item.dataset.page;
+        this.navigate(page);
+      });
+    });
 
-<div class="sidebar">
-<h2>Projeto Federal</h2>
+    document.getElementById('startParsingBtn')?.addEventListener('click', () => this.parseEdital());
+    document.getElementById('generatePlanningBtn')?.addEventListener('click', () => this.generatePlanning());
+    document.getElementById('addMockBtn')?.addEventListener('click', () => this.addMock());
+    document.getElementById('newSubjectBtn')?.addEventListener('click', () => this.addSubject());
+  }
 
-<div class="nav-item active" data-page="dashboard">Dashboard</div>
-<div class="nav-item" data-page="parser">Importar Edital</div>
-<div class="nav-item" data-page="subjects">Disciplinas</div>
-<div class="nav-item" data-page="planning">Planejamento</div>
-<div class="nav-item" data-page="mock">Simulados</div>
+  // ================= NAVEGAÇÃO =================
+  navigate(page) {
+    this.navItems.forEach(i => i.classList.toggle('active', i.dataset.page === page));
 
-</div>
+    this.pages.forEach(p => p.classList.remove('active'));
+    document.getElementById(page + '-page')?.classList.add('active');
 
-<div class="main">
-<div class="header">
-<h1 id="title">Dashboard</h1>
-<button onclick="addStudy()">+ Estudo</button>
-</div>
+    const titles = {
+      dashboard: "Dashboard",
+      parser: "Importar Edital",
+      subjects: "Disciplinas",
+      planning: "Planejamento",
+      'mock-exams': "Simulados"
+    };
 
-<!-- DASHBOARD -->
-<div id="dashboard-page" class="page active">
-<div class="grid">
-<div class="card">Tempo: <span id="time">0h</span></div>
-<div class="card">Progresso: <span id="progress">0%</span></div>
-</div>
-</div>
+    this.pageTitle.textContent = titles[page] || "Projeto Federal";
+  }
 
-<!-- PARSER -->
-<div id="parser-page" class="page">
-<div class="card">
-<textarea id="edital" placeholder="Cole o edital..."></textarea>
-<button onclick="parse()">Processar</button>
-<pre id="output"></pre>
-</div>
-</div>
+  // ================= PARSER =================
+  parseEdital() {
+    const text = this.editalText.value.trim();
 
-<!-- SUBJECTS -->
-<div id="subjects-page" class="page">
-<div class="card">
-<input id="subjectName" placeholder="Nova disciplina">
-<button onclick="addSubject()">Adicionar</button>
-<ul id="subjectsList"></ul>
-</div>
-</div>
+    if (!text) return alert("Cole o edital");
 
-<!-- PLANNING -->
-<div id="planning-page" class="page">
-<div class="card">
-<button onclick="generatePlan()">Gerar Ciclo</button>
-<ul id="planList"></ul>
-</div>
-</div>
+    const disciplinas = text
+      .split(/\n|,|;/)
+      .map(t => t.trim())
+      .filter(t => t.length > 3);
 
-<!-- MOCK -->
-<div id="mock-page" class="page">
-<div class="card">
-<input id="score" placeholder="Acertos">
-<button onclick="addMock()">Salvar</button>
-<ul id="mockList"></ul>
-</div>
-</div>
+    this.subjects = disciplinas.map((d, i) => ({
+      id: Date.now() + i,
+      name: d,
+      progress: 0
+    }));
 
-</div>
+    this.save();
+    this.renderSubjects();
 
-<script>
-const navs=document.querySelectorAll('.nav-item')
-const pages=document.querySelectorAll('.page')
+    this.jsonOutput.textContent = JSON.stringify(this.subjects, null, 2);
+  }
 
-navs.forEach(n=>{
- n.onclick=()=>{
-  navs.forEach(x=>x.classList.remove('active'))
-  n.classList.add('active')
+  // ================= DISCIPLINAS =================
+  addSubject() {
+    const name = prompt("Nome da disciplina:");
+    if (!name) return;
 
-  const page=n.dataset.page
-  pages.forEach(p=>p.classList.remove('active'))
-  document.getElementById(page+'-page').classList.add('active')
+    this.subjects.push({ id: Date.now(), name, progress: 0 });
+    this.save();
+    this.renderSubjects();
+  }
 
-  document.getElementById('title').innerText=n.innerText
- }
-})
+  renderSubjects() {
+    if (!this.subjectsGrid) return;
 
-// PARSER
-function parse(){
- let t=document.getElementById('edital').value
- let arr=t.split(/\n|,|;/).filter(x=>x.length>3)
- document.getElementById('output').innerText=JSON.stringify(arr,null,2)
+    this.subjectsGrid.innerHTML = this.subjects.map(s => `
+      <div class="card">
+        <h3>${s.name}</h3>
+        <p>Progresso: ${s.progress}%</p>
+        <button onclick="app.study(${s.id})">Estudar</button>
+      </div>
+    `).join('');
+  }
+
+  study(id) {
+    const subject = this.subjects.find(s => s.id === id);
+    if (!subject) return;
+
+    subject.progress = Math.min(100, subject.progress + 10);
+
+    this.history.push({
+      subject: subject.name,
+      date: new Date().toLocaleDateString()
+    });
+
+    this.save();
+    this.renderAll();
+  }
+
+  // ================= PLANEJAMENTO =================
+  generatePlanning() {
+    if (!this.planningContainer) return;
+
+    const plano = this.subjects.map((s, i) => `Dia ${i + 1}: ${s.name}`);
+
+    this.planningContainer.innerHTML = plano
+      .map(p => `<div class="card">${p}</div>`)
+      .join('');
+  }
+
+  // ================= SIMULADOS =================
+  addMock() {
+    const nome = prompt("Nome do simulado:");
+    const total = Number(prompt("Total de questões:"));
+    const acertos = Number(prompt("Acertos:"));
+
+    if (!nome || !total) return;
+
+    const percent = ((acertos / total) * 100).toFixed(1);
+
+    this.simulados.push({ nome, total, acertos, percent });
+
+    this.save();
+    this.renderMocks();
+  }
+
+  renderMocks() {
+    if (!this.mockTable) return;
+
+    this.mockTable.innerHTML = this.simulados.map(m => `
+      <tr>
+        <td>${new Date().toLocaleDateString()}</td>
+        <td>${m.nome}</td>
+        <td>${m.total}</td>
+        <td>${m.acertos}</td>
+        <td>${m.percent}%</td>
+      </tr>
+    `).join('');
+  }
+
+  // ================= DASHBOARD =================
+  renderDashboard() {
+    const totalStudy = this.history.length * 30;
+    const performance = this.simulados.length
+      ? (this.simulados.reduce((a, b) => a + Number(b.percent), 0) / this.simulados.length).toFixed(1)
+      : 0;
+
+    document.getElementById('totalStudyTime') && (document.getElementById('totalStudyTime').innerText = totalStudy + ' min');
+    document.getElementById('overallPerformance') && (document.getElementById('overallPerformance').innerText = performance + '%');
+  }
+
+  // ================= SAVE =================
+  save() {
+    localStorage.setItem('pf_subjects', JSON.stringify(this.subjects));
+    localStorage.setItem('pf_history', JSON.stringify(this.history));
+    localStorage.setItem('pf_simulados', JSON.stringify(this.simulados));
+  }
+
+  // ================= RENDER =================
+  renderAll() {
+    this.renderSubjects();
+    this.renderMocks();
+    this.renderDashboard();
+    this.navigate('dashboard');
+  }
 }
 
-// SUBJECTS
-let subjects=[]
-function addSubject(){
- let name=document.getElementById('subjectName').value
- subjects.push(name)
- renderSubjects()
-}
-function renderSubjects(){
- let list=document.getElementById('subjectsList')
- list.innerHTML=subjects.map(s=>`<li>${s}</li>`).join('')
-}
-
-// PLANNING
-function generatePlan(){
- let list=document.getElementById('planList')
- list.innerHTML=subjects.map(s=>`<li>${s} - 1h</li>`).join('')
-}
-
-// MOCK
-let mocks=[]
-function addMock(){
- let score=document.getElementById('score').value
- mocks.push(score)
- document.getElementById('mockList').innerHTML=mocks.map(m=>`<li>${m}</li>`).join('')
-}
-
-function addStudy(){alert('Registrar estudo em breve')}
-</script>
-
-</body>
-</html>
+// INIT
+window.addEventListener('DOMContentLoaded', () => {
+  window.app = new StudyApp();
+});
