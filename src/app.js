@@ -39,11 +39,10 @@ class StudyApp {
         }
     }
 
-    // 🔥 CORREÇÃO PRINCIPAL AQUI
     navigateTo(pageId) {
         console.log("➡️ Navegando para:", pageId);
 
-        // ativa menu
+        // menu ativo
         this.navItems.forEach(item => {
             item.classList.toggle(
                 'active',
@@ -51,7 +50,7 @@ class StudyApp {
             );
         });
 
-        // mostra/esconde páginas (SEM QUEBRAR CSS)
+        // páginas
         this.pages.forEach(page => {
             if (page.id === `${pageId}-page`) {
                 page.classList.remove('hidden');
@@ -73,7 +72,8 @@ class StudyApp {
         this.navigateTo('dashboard');
     }
 
-    async handleParsing() {
+    // 🔥 NOVO PARSER (SEM API, SEM IA)
+    handleParsing() {
         const text = this.editalText?.value?.trim();
 
         if (!text) {
@@ -82,20 +82,30 @@ class StudyApp {
         }
 
         try {
-            const res = await fetch('/api/parse-edital', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    text,
-                    metadata: { cargo: "Teste" }
-                })
-            });
+            // 🔥 processamento local
+            const disciplinas = text
+                .split(/\n|,|;/)
+                .map(l => l.trim())
+                .filter(l => l.length > 3);
 
-            const data = await res.json();
+            const resultado = {
+                verticalizado: disciplinas.map((d, i) => ({
+                    disciplina: d,
+                    topicos: [
+                        {
+                            id: String(i + 1),
+                            descricao: "Tópico geral"
+                        }
+                    ]
+                }))
+            };
 
+            // mostra JSON
             if (this.jsonOutput) {
-                this.jsonOutput.textContent = JSON.stringify(data, null, 2);
+                this.jsonOutput.textContent = JSON.stringify(resultado, null, 2);
             }
+
+            console.log("✅ Edital processado:", resultado);
 
         } catch (err) {
             console.error(err);
