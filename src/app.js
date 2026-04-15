@@ -121,7 +121,7 @@ class StudyApp {
               <td>${t.disciplina}</td>
               <td>${t.formato}</td>
               <td>${t.descricao}</td>
-              <td>${this.formatTime(t.tempo_estudado_minutos)}</td>
+              <td>${this.formatTime(t.tempo_previsto_minutos)}</td>
               <td class="perf">${t.desempenho_percentual}%</td>
               <td>
                 <span class="status ${t.status}">
