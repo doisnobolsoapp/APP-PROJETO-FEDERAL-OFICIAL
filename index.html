@@ -6,10 +6,13 @@
   <title>Projeto Federal PRO</title>
 
   <meta name="theme-color" content="#0f172a" />
-
   <link rel="manifest" href="/manifest.json" />
 
+  <!-- ICONS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+  <!-- CSS -->
+  <link rel="stylesheet" href="/src/style.css">
 </head>
 
 <body>
@@ -18,13 +21,14 @@
 
   <!-- SIDEBAR -->
   <aside id="sidebar">
-    <h2>Projeto Federal</h2>
+    <h2>🚀 Federal PRO</h2>
 
-    <div class="nav-item active" data-page="dashboard">Dashboard</div>
-    <div class="nav-item" data-page="parser">Importar Edital</div>
-    <div class="nav-item" data-page="subjects">Disciplinas</div>
-    <div class="nav-item" data-page="planning">Planejamento</div>
-    <div class="nav-item" data-page="mock-exams">Simulados</div>
+    <div class="nav-item active" data-page="dashboard"><i class="fas fa-chart-line"></i> Dashboard</div>
+    <div class="nav-item" data-page="parser"><i class="fas fa-file-import"></i> Edital</div>
+    <div class="nav-item" data-page="subjects"><i class="fas fa-book"></i> Disciplinas</div>
+    <div class="nav-item" data-page="planning"><i class="fas fa-calendar"></i> Planejamento</div>
+    <div class="nav-item" data-page="mock-exams"><i class="fas fa-clipboard-check"></i> Simulados</div>
+    <div class="nav-item" data-page="contest"><i class="fas fa-building"></i> Concurso</div>
   </aside>
 
   <!-- MAIN -->
@@ -35,6 +39,7 @@
     <!-- DASHBOARD -->
     <div id="dashboard-page" class="page active">
       <div class="dashboard-grid">
+
         <div class="card stat-card">
           <h3>Tempo de Estudo</h3>
           <p id="totalStudyTime">0 min</p>
@@ -44,36 +49,43 @@
           <h3>Performance</h3>
           <p id="overallPerformance">0%</p>
         </div>
+
       </div>
     </div>
 
     <!-- PARSER -->
     <div id="parser-page" class="page">
-      <textarea id="editalText" placeholder="Cole o edital aqui"></textarea>
-      <button id="startParsingBtn">Processar</button>
-      <pre id="jsonOutput"></pre>
+      <div class="card">
+        <h2>Importar Edital</h2>
+        <textarea id="editalText" placeholder="Cole o edital aqui..."></textarea>
+        <button id="startParsingBtn">Processar</button>
+        <pre id="jsonOutput"></pre>
+      </div>
     </div>
 
     <!-- DISCIPLINAS -->
     <div id="subjects-page" class="page">
-      <button id="newSubjectBtn">+ Nova</button>
-      <div id="subjectsGrid"></div>
+      <button id="newSubjectBtn">+ Nova Disciplina</button>
+      <div id="subjectsGrid" class="grid"></div>
     </div>
 
     <!-- PLANEJAMENTO -->
     <div id="planning-page" class="page">
-      <button id="generatePlanningBtn">Gerar</button>
-      <div id="planningContainer"></div>
+      <button id="generatePlanningBtn">Gerar Planejamento</button>
+      <div id="planningContainer" class="grid"></div>
     </div>
 
     <!-- SIMULADOS -->
     <div id="mock-exams-page" class="page">
-      <button id="addMockBtn">Novo</button>
-      <table>
+      <button id="addMockBtn">Novo Simulado</button>
+
+      <table class="table">
         <thead>
           <tr>
             <th>Data</th>
             <th>Nome</th>
+            <th>Total</th>
+            <th>Acertos</th>
             <th>%</th>
           </tr>
         </thead>
@@ -81,10 +93,28 @@
       </table>
     </div>
 
+    <!-- CONCURSO -->
+    <div id="contest-page" class="page">
+      <div class="card">
+        <h2>Cadastro do Concurso</h2>
+
+        <input type="text" id="contestName" placeholder="Nome do Concurso">
+        <input type="text" id="contestCargo" placeholder="Cargo">
+        <input type="text" id="contestOrgao" placeholder="Órgão">
+        <input type="text" id="contestBanca" placeholder="Banca">
+        <input type="date" id="contestDate">
+
+        <button id="saveContestBtn">Salvar</button>
+
+        <div id="contestInfo"></div>
+      </div>
+    </div>
+
   </main>
 
 </div>
 
+<!-- JS -->
 <script type="module" src="/src/main.js"></script>
 
 </body>
