@@ -10,7 +10,9 @@
   <link rel="manifest" href="/manifest.json" />
   <link rel="icon" href="https://ui-avatars.com/api/?name=PF&background=001f3f&color=fff">
 
-  <link rel="stylesheet" href="/src/style.css">
+  <!-- ❌ NÃO IMPORTA CSS DIRETO DO /src -->
+  <!-- Vite vai injetar automaticamente -->
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 </head>
 
@@ -44,7 +46,7 @@
       </div>
 
       <!-- PARSER -->
-      <div id="parser-page" class="page">
+      <div id="parser-page" class="page hidden">
 
         <textarea id="editalText" placeholder="Cole o edital aqui"></textarea>
 
@@ -64,6 +66,7 @@
 
 </div>
 
+<!-- ✅ IMPORTANTE: deixa o Vite cuidar disso -->
 <script type="module" src="/src/main.js"></script>
 
 </body>
