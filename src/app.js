@@ -2,22 +2,17 @@ class StudyApp {
     constructor() {
         console.log("🚀 App inicializando...");
 
-        // Estado básico
         this.subjects = JSON.parse(localStorage.getItem('pf_subjects')) || [];
         this.history = JSON.parse(localStorage.getItem('pf_history')) || [];
 
-        // Inicialização segura
         this.initElements();
         this.initEventListeners();
-
-        // Render inicial
         this.renderAll();
 
         console.log("✅ App pronto");
     }
 
     initElements() {
-        // 🔥 SEM QUEBRAR SE NÃO EXISTIR
         this.navItems = document.querySelectorAll('.nav-item');
         this.pages = document.querySelectorAll('.page');
         this.pageTitle = document.getElementById('pageTitle');
@@ -30,7 +25,6 @@ class StudyApp {
     initEventListeners() {
         console.log("🎯 Eventos iniciados");
 
-        // Navegação
         this.navItems.forEach(item => {
             item.addEventListener('click', () => {
                 const pageId = item.getAttribute('data-page');
@@ -38,7 +32,6 @@ class StudyApp {
             });
         });
 
-        // Parser
         if (this.startParsingBtn) {
             this.startParsingBtn.addEventListener('click', () => {
                 this.handleParsing();
@@ -46,7 +39,11 @@ class StudyApp {
         }
     }
 
+    // 🔥 CORREÇÃO PRINCIPAL AQUI
     navigateTo(pageId) {
+        console.log("➡️ Navegando para:", pageId);
+
+        // ativa menu
         this.navItems.forEach(item => {
             item.classList.toggle(
                 'active',
@@ -54,19 +51,25 @@ class StudyApp {
             );
         });
 
+        // mostra/esconde páginas (SEM QUEBRAR CSS)
         this.pages.forEach(page => {
-            page.style.display =
-                page.id === `${pageId}-page` ? 'block' : 'none';
+            if (page.id === `${pageId}-page`) {
+                page.classList.remove('hidden');
+            } else {
+                page.classList.add('hidden');
+            }
         });
 
+        // título
         if (this.pageTitle) {
             this.pageTitle.textContent =
-                pageId === 'parser' ? 'Importar Edital' : 'Dashboard';
+                pageId === 'parser'
+                    ? 'Importar Edital'
+                    : 'Dashboard';
         }
     }
 
     renderAll() {
-        // Mostra dashboard por padrão
         this.navigateTo('dashboard');
     }
 
@@ -101,7 +104,7 @@ class StudyApp {
     }
 }
 
-// 🔥 GARANTE EXECUÇÃO
+// INIT
 document.addEventListener('DOMContentLoaded', () => {
     window.app = new StudyApp();
 });
