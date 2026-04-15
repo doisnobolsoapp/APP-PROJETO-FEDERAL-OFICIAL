@@ -2,7 +2,6 @@ class StudyApp {
   constructor() {
     console.log("🚀 App PRO iniciando...");
 
-    // STORAGE
     this.subjects = JSON.parse(localStorage.getItem('pf_subjects')) || [];
     this.history = JSON.parse(localStorage.getItem('pf_history')) || [];
     this.simulados = JSON.parse(localStorage.getItem('pf_simulados')) || [];
@@ -16,7 +15,6 @@ class StudyApp {
     console.log("✅ App PRO pronto");
   }
 
-  // ================= ELEMENTOS =================
   initElements() {
     this.navItems = document.querySelectorAll('.nav-item');
     this.pages = document.querySelectorAll('.page');
@@ -30,12 +28,9 @@ class StudyApp {
     this.mockTable = document.getElementById('mockExamsTableBody');
   }
 
-  // ================= EVENTOS =================
   initEvents() {
     this.navItems.forEach(item => {
-      item.addEventListener('click', () => {
-        this.navigate(item.dataset.page);
-      });
+      item.addEventListener('click', () => this.navigate(item.dataset.page));
     });
 
     document.getElementById('startParsingBtn')?.addEventListener('click', () => this.parseEdital());
@@ -45,14 +40,9 @@ class StudyApp {
     document.getElementById('saveContestBtn')?.addEventListener('click', () => this.saveContest());
   }
 
-  // ================= NAVEGAÇÃO =================
   navigate(page) {
-    this.navItems.forEach(i =>
-      i.classList.toggle('active', i.dataset.page === page)
-    );
-
+    this.navItems.forEach(i => i.classList.toggle('active', i.dataset.page === page));
     this.pages.forEach(p => p.classList.remove('active'));
-
     document.getElementById(page + '-page')?.classList.add('active');
 
     const titles = {
@@ -64,12 +54,9 @@ class StudyApp {
       contest: "Concurso"
     };
 
-    if (this.pageTitle) {
-      this.pageTitle.textContent = titles[page] || "Projeto Federal";
-    }
+    this.pageTitle.textContent = titles[page] || "Projeto Federal";
   }
 
-  // ================= PARSER =================
   parseEdital() {
     const text = this.editalText?.value?.trim();
     if (!text) return alert("Cole o edital");
@@ -111,13 +98,8 @@ class StudyApp {
 
     this.save();
     this.renderSubjects();
-
-    if (this.jsonOutput) {
-      this.jsonOutput.textContent = JSON.stringify(this.subjects, null, 2);
-    }
   }
 
-  // ================= DISCIPLINAS =================
   addSubject() {
     const name = prompt("Nome da disciplina:");
     if (!name) return;
@@ -161,7 +143,7 @@ class StudyApp {
     this.renderAll();
   }
 
-  // ================= PLANEJAMENTO PRO =================
+  // 🔥 PLANEJAMENTO PRO TABELA
   generatePlanning() {
     if (!this.subjects.length) {
       alert("Importe disciplinas primeiro");
@@ -171,29 +153,18 @@ class StudyApp {
     const tarefas = [];
     let ciclo = 1;
 
-    this.subjects.forEach((s, i) => {
-      // TEORIA
+    this.subjects.forEach(s => {
       tarefas.push(this.createTask(ciclo++, s.title, "teoria", 60));
-
-      // QUESTÕES
       tarefas.push(this.createTask(ciclo++, s.title, "questoes", 45));
-
-      // REVISÃO 24H
-      tarefas.push(this.createTask(ciclo++, s.title, "revisao", 30, "Revisão 24h"));
-
-      // REVISÃO 7 DIAS
-      tarefas.push(this.createTask(ciclo++, s.title, "revisao", 30, "Revisão 7 dias"));
+      tarefas.push(this.createTask(ciclo++, s.title, "revisao", 30, "24h"));
+      tarefas.push(this.createTask(ciclo++, s.title, "revisao", 30, "7d"));
     });
 
     this.planning = {
-      tipo: "ciclo_estudos",
-      duracao_ciclo: `${tarefas.length} tarefas`,
-      total_tarefas: tarefas.length,
       tarefas
     };
 
     localStorage.setItem('pf_planning', JSON.stringify(this.planning));
-
     this.renderPlanning();
   }
 
@@ -204,7 +175,6 @@ class StudyApp {
       formato,
       descricao: `${disciplina} - ${formato} ${extra}`,
       tempo_previsto_minutos: tempo,
-      tempo_estudado_minutos: 0,
       desempenho_percentual: 0,
       status: "pendente"
     };
@@ -213,17 +183,36 @@ class StudyApp {
   renderPlanning() {
     if (!this.planningContainer || !this.planning) return;
 
-    this.planningContainer.innerHTML = this.planning.tarefas.map(t => `
-      <div class="card">
-        <strong>${t.disciplina}</strong>
-        <p>${t.formato.toUpperCase()}</p>
-        <p>${t.descricao}</p>
-        <p>${t.tempo_previsto_minutos} min</p>
-      </div>
-    `).join('');
+    this.planningContainer.innerHTML = `
+      <table class="planning-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Disciplina</th>
+            <th>Formato</th>
+            <th>Descrição</th>
+            <th>Tempo</th>
+            <th>Desempenho</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${this.planning.tarefas.map((t, i) => `
+            <tr>
+              <td>${i + 1}</td>
+              <td>${t.disciplina}</td>
+              <td>${t.formato}</td>
+              <td>${t.descricao}</td>
+              <td>${t.tempo_previsto_minutos} min</td>
+              <td class="danger">${t.desempenho_percentual}%</td>
+              <td><span class="status ${t.status}">${t.status}</span></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    `;
   }
 
-  // ================= SIMULADOS =================
   addMock() {
     const nome = prompt("Nome:");
     const total = Number(prompt("Total:"));
@@ -232,8 +221,7 @@ class StudyApp {
     if (!nome || !total) return;
 
     const percent = ((acertos / total) * 100).toFixed(1);
-
-    this.simulados.push({ nome, total, acertos, percent });
+    this.simulados.push({ nome, percent });
 
     this.save();
     this.renderMocks();
@@ -251,7 +239,6 @@ class StudyApp {
     `).join('');
   }
 
-  // ================= CONCURSO =================
   saveContest() {
     this.contest = {
       nome: document.getElementById('contestName')?.value || '',
@@ -262,55 +249,33 @@ class StudyApp {
     };
 
     localStorage.setItem('pf_contest', JSON.stringify(this.contest));
-    this.renderContest();
   }
 
-  renderContest() {
-    const el = document.getElementById('contestInfo');
-    if (!el || !this.contest.nome) return;
-
-    el.innerHTML = `
-      <div class="card">
-        <h3>${this.contest.nome}</h3>
-        <p>${this.contest.cargo}</p>
-        <p>${this.contest.orgao}</p>
-        <p>${this.contest.banca}</p>
-        <p>${this.contest.data}</p>
-      </div>
-    `;
-  }
-
-  // ================= DASHBOARD =================
   renderDashboard() {
     const totalStudy = this.history.length * 30;
-
     const performance = this.simulados.length
       ? (this.simulados.reduce((a, b) => a + Number(b.percent), 0) / this.simulados.length).toFixed(1)
       : 0;
 
-    document.getElementById('totalStudyTime') && (document.getElementById('totalStudyTime').innerText = totalStudy + ' min');
-    document.getElementById('overallPerformance') && (document.getElementById('overallPerformance').innerText = performance + '%');
+    document.getElementById('totalStudyTime').innerText = totalStudy + ' min';
+    document.getElementById('overallPerformance').innerText = performance + '%';
   }
 
-  // ================= SAVE =================
   save() {
     localStorage.setItem('pf_subjects', JSON.stringify(this.subjects));
     localStorage.setItem('pf_history', JSON.stringify(this.history));
     localStorage.setItem('pf_simulados', JSON.stringify(this.simulados));
   }
 
-  // ================= RENDER =================
   renderAll() {
     this.renderSubjects();
     this.renderMocks();
     this.renderDashboard();
     this.renderPlanning();
-    this.renderContest();
     this.navigate('dashboard');
   }
 }
 
-// INIT
 window.addEventListener('DOMContentLoaded', () => {
   window.app = new StudyApp();
 });
