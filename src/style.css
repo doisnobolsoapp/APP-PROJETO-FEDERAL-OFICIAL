@@ -8,39 +8,40 @@
 /* BODY */
 body {
   font-family: 'Segoe UI', Arial, sans-serif;
-  background: #f4f6f9;
-  color: #333;
+  background: #f1f5f9;
+  color: #1e293b;
 }
 
-/* LAYOUT */
+/* LAYOUT PRINCIPAL */
 .app-container {
   display: flex;
   height: 100vh;
+  overflow: hidden;
 }
 
 /* SIDEBAR */
-.sidebar {
-  width: 250px;
-  background: #001f3f;
-  color: white;
+#sidebar {
+  width: 260px;
+  background: linear-gradient(180deg, #001f3f, #003366);
+  color: #fff;
   display: flex;
   flex-direction: column;
-}
-
-.sidebar-header {
   padding: 20px;
-  font-weight: bold;
 }
 
-.sidebar-nav ul {
-  list-style: none;
+#sidebar h2 {
+  margin-bottom: 30px;
+  font-size: 20px;
+  text-align: center;
 }
 
+/* MENU */
 .nav-item {
-  padding: 12px 20px;
+  padding: 12px 15px;
+  margin-bottom: 8px;
+  border-radius: 8px;
   cursor: pointer;
-  display: flex;
-  gap: 10px;
+  transition: 0.2s;
 }
 
 .nav-item:hover {
@@ -52,26 +53,19 @@ body {
 }
 
 /* MAIN */
-.main-content {
+main {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-/* NAVBAR */
-.top-navbar {
-  background: white;
-  padding: 15px;
-  border-bottom: 1px solid #ddd;
-}
-
-/* CONTENT */
-.content-wrapper {
-  padding: 20px;
+  padding: 25px;
   overflow-y: auto;
 }
 
-/* PAGES */
+/* TITULO */
+#pageTitle {
+  margin-bottom: 20px;
+  font-size: 26px;
+}
+
+/* PÁGINAS */
 .page {
   display: none;
 }
@@ -83,40 +77,78 @@ body {
 /* CARDS */
 .card {
   background: white;
-  border-radius: 10px;
   padding: 20px;
-  margin-bottom: 20px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
-/* BUTTON */
-.btn {
+/* BOTÕES */
+button {
   background: #0074D9;
   color: white;
-  padding: 10px 15px;
-  border-radius: 6px;
   border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
   cursor: pointer;
+  transition: 0.2s;
 }
 
-.btn:hover {
+button:hover {
   background: #005fa3;
 }
 
 /* TEXTAREA */
 textarea {
   width: 100%;
-  height: 150px;
-  padding: 10px;
-  border-radius: 6px;
+  height: 160px;
+  padding: 12px;
+  border-radius: 8px;
   border: 1px solid #ccc;
+  margin-bottom: 15px;
 }
 
-/* PRE */
+/* JSON OUTPUT */
 pre {
-  background: #111;
-  color: #0f0;
+  background: #0f172a;
+  color: #22c55e;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 10px;
+  overflow-x: auto;
+}
+
+/* GRID DISCIPLINAS */
+#subjectsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.subject-card {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* TABELA */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+th, td {
   padding: 10px;
-  border-radius: 6px;
+  text-align: center;
+}
+
+thead {
+  background: #001f3f;
+  color: white;
 }
 
 /* RESPONSIVO */
@@ -125,7 +157,14 @@ pre {
     flex-direction: column;
   }
 
-  .sidebar {
+  #sidebar {
     width: 100%;
+    flex-direction: row;
+    overflow-x: auto;
+  }
+
+  .nav-item {
+    flex: 1;
+    text-align: center;
   }
 }
