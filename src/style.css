@@ -1,13 +1,21 @@
-body {
+/* RESET */
+* {
   margin: 0;
-  font-family: Arial;
-  background: #020617;
-  color: #fff;
+  padding: 0;
+  box-sizing: border-box;
 }
 
+body {
+  font-family: Arial;
+  background: #020617;
+  color: #e2e8f0;
+}
+
+/* LAYOUT */
 .app-container {
   display: flex;
   height: 100vh;
+  overflow: hidden;
 }
 
 /* SIDEBAR */
@@ -15,12 +23,23 @@ body {
   width: 220px;
   background: #020617;
   padding: 20px;
+  border-right: 1px solid #1e293b;
+}
+
+#sidebar h2 {
+  margin-bottom: 20px;
+  font-size: 18px;
 }
 
 .nav-item {
   padding: 10px;
-  cursor: pointer;
+  margin-bottom: 8px;
   border-radius: 6px;
+  cursor: pointer;
+}
+
+.nav-item:hover {
+  background: #1e293b;
 }
 
 .nav-item.active {
@@ -31,6 +50,7 @@ body {
 main {
   flex: 1;
   padding: 20px;
+  overflow-y: auto;
 }
 
 /* CARDS */
@@ -40,17 +60,18 @@ main {
   border-radius: 10px;
 }
 
-/* GRID */
-.dashboard-grid {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 20px;
-}
-
+/* DASHBOARD */
 .top-cards {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 15px;
+  margin-bottom: 15px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
 }
 
 /* PROGRESS */
@@ -58,30 +79,44 @@ main {
   height: 10px;
   background: #1e293b;
   border-radius: 10px;
-  margin: 15px 0;
+  margin-bottom: 20px;
+  overflow: hidden;
 }
 
 #progressFill {
   height: 100%;
-  background: #22c55e;
   width: 0%;
+  background: linear-gradient(90deg, #22c55e, #06b6d4);
 }
 
-/* TABLE */
+/* TABELA */
 .table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 15px;
+  margin-top: 20px;
+  min-width: 900px;
 }
 
-.table th, .table td {
+.table th {
+  text-align: left;
+  padding: 12px;
+  background: #0f172a;
+  font-size: 13px;
+}
+
+.table td {
   padding: 10px;
   border-bottom: 1px solid #1e293b;
+  font-size: 13px;
 }
 
 .table tr:hover {
   background: #1e293b;
-  cursor: pointer;
+}
+
+/* SCROLL HORIZONTAL */
+.table-container {
+  overflow-x: auto;
 }
 
 /* STATUS */
@@ -91,5 +126,43 @@ main {
   font-size: 12px;
 }
 
-.pendente { background: orange; }
-.concluido { background: green; }
+.pendente {
+  background: orange;
+  color: #000;
+}
+
+.concluido {
+  background: #22c55e;
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px,1fr));
+  gap: 10px;
+}
+
+/* INPUT */
+textarea, input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  background: #020617;
+  border: 1px solid #1e293b;
+  color: #fff;
+  border-radius: 6px;
+}
+
+/* BOTÃO */
+button {
+  background: #6366f1;
+  border: none;
+  padding: 10px;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
