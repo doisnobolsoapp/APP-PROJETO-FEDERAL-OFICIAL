@@ -3,38 +3,62 @@ class StudyApp {
     this.subjects = JSON.parse(localStorage.getItem('pf_subjects')) || [];
     this.planning = JSON.parse(localStorage.getItem('pf_planning')) || [];
     this.simulados = JSON.parse(localStorage.getItem('pf_simulados')) || [];
-    this.history = [];
 
     this.init();
   }
 
   init() {
-    document.querySelectorAll('.nav-item').forEach(btn => {
-      btn.onclick = () => this.navigate(btn.dataset.page);
-    });
-
-    document.getElementById('generatePlanningBtn').onclick = () => this.generatePlanning();
-
+    this.bindEvents();
     this.renderAll();
   }
 
-  navigate(page) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.getElementById(page + '-page').classList.add('active');
+  bindEvents() {
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => this.navigate(item.dataset.page));
+    });
+
+    document.getElementById('generatePlanningBtn')?.addEventListener('click', () => this.generatePlanning());
+    document.getElementById('addMockBtn')?.addEventListener('click', () => this.addMock());
   }
 
-  // 🔥 CICLO INTELIGENTE
+  navigate(page) {
+    document.querySelectorAll('.nav-item').forEach(i =>
+      i.classList.toggle('active', i.dataset.page === page)
+    );
+
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(page + '-page')?.classList.add('active');
+
+    document.getElementById('pageTitle').innerText = page.toUpperCase();
+  }
+
+  // 🔥 CICLO INTELIGENTE INTERCALADO
   generatePlanning() {
+    if (!this.subjects.length) {
+      alert("Adicione disciplinas primeiro");
+      return;
+    }
+
     let tarefas = [];
-    let ordem = [...this.subjects];
+    let ciclo = 1;
 
-    let i = 1;
+    const formatos = ["Teoria", "Questões", "Revisão"];
 
-    ordem.forEach(s => {
-      tarefas.push(this.task(i++, s.title, "Teórico", 60));
-      tarefas.push(this.task(i++, s.title, "Questões", 45));
-      tarefas.push(this.task(i++, s.title, "Revisão", 30));
-    });
+    for (let i = 0; i < this.subjects.length; i++) {
+      const s = this.subjects[i];
+
+      formatos.forEach((f, index) => {
+        tarefas.push({
+          numero: ciclo++,
+          disciplina: s.title,
+          formato: f,
+          descricao: `${s.title} - ${f}`,
+          tempo: f === "Teoria" ? 60 : f === "Questões" ? 45 : 30,
+          desempenho: 0,
+          status: "pendente"
+        });
+      });
+    }
 
     this.planning = tarefas;
     localStorage.setItem('pf_planning', JSON.stringify(tarefas));
@@ -42,19 +66,6 @@ class StudyApp {
     this.renderPlanning();
   }
 
-  task(n, disc, tipo, tempo) {
-    return {
-      numero: n,
-      disciplina: disc,
-      formato: tipo,
-      descricao: `${disc} - ${tipo}`,
-      tempo,
-      desempenho: 0,
-      status: "pendente"
-    };
-  }
-
-  // 🔥 TABELA INTERATIVA
   renderPlanning() {
     const tbody = document.getElementById('planningTable');
     if (!tbody) return;
@@ -64,7 +75,9 @@ class StudyApp {
         <td>${t.numero}</td>
         <td>${t.disciplina}</td>
         <td>${t.formato}</td>
-        <td>${t.descricao}</td>
+        <td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+          ${t.descricao}
+        </td>
         <td>${t.tempo} min</td>
         <td>${t.desempenho}%</td>
         <td>
@@ -76,30 +89,64 @@ class StudyApp {
     `).join('');
   }
 
-  toggleTask(num) {
-    const t = this.planning.find(x => x.numero === num);
-    if (!t) return;
+  toggleTask(numero) {
+    const tarefa = this.planning.find(t => t.numero === numero);
+    if (!tarefa) return;
 
-    t.status = t.status === "pendente" ? "concluido" : "pendente";
-    t.desempenho = t.status === "concluido" ? 80 : 0;
+    tarefa.status = tarefa.status === "pendente" ? "concluido" : "pendente";
+    tarefa.desempenho = tarefa.status === "concluido" ? 80 : 0;
 
     localStorage.setItem('pf_planning', JSON.stringify(this.planning));
+
     this.renderPlanning();
     this.renderDashboard();
   }
 
-  // DASHBOARD
+  // 🔥 DASHBOARD REAL
   renderDashboard() {
-    const total = this.planning.filter(t => t.status === "concluido").length;
-    const percent = this.planning.length ? Math.round((total / this.planning.length) * 100) : 0;
+    const total = this.planning.length;
+    const concluidas = this.planning.filter(t => t.status === "concluido").length;
 
-    document.getElementById('progressFill').style.width = percent + '%';
+    const percent = total ? Math.round((concluidas / total) * 100) : 0;
+
     document.getElementById('progressPercent').innerText = percent + '%';
+    document.getElementById('progressFill').style.width = percent + '%';
+
+    document.getElementById('totalStudyTime').innerText = (concluidas * 45) + " min";
+  }
+
+  addMock() {
+    const nome = prompt("Nome:");
+    const total = Number(prompt("Total:"));
+    const acertos = Number(prompt("Acertos:"));
+
+    if (!nome || !total) return;
+
+    const percent = ((acertos / total) * 100).toFixed(1);
+
+    this.simulados.push({ nome, percent });
+
+    localStorage.setItem('pf_simulados', JSON.stringify(this.simulados));
+    this.renderMocks();
+  }
+
+  renderMocks() {
+    const tbody = document.getElementById('mockExamsTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = this.simulados.map(m => `
+      <tr>
+        <td>${new Date().toLocaleDateString()}</td>
+        <td>${m.nome}</td>
+        <td>${m.percent}%</td>
+      </tr>
+    `).join('');
   }
 
   renderAll() {
     this.renderPlanning();
     this.renderDashboard();
+    this.renderMocks();
   }
 }
 
